@@ -61,8 +61,6 @@ public class FileController {
 
         GridFSFile file = gridOperations.findOne(new Query().addCriteria(Criteria.where("_id").is(id)));
 
-        downloadFIleIntoServer(id);
-
         if (file == null)
             throw new ResourceNotFoundException();
         try {
