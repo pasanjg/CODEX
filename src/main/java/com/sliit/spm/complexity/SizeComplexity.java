@@ -35,16 +35,20 @@ public class SizeComplexity {
 			
 			String currentLine = scanner.nextLine().trim();
 			String[] skipKeys = {"/", "*"};
+			String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
 			
 			if(canSkip(currentLine, skipKeys)) {
 				continue;
 			}
 			
 			System.out.println(currentLine);
-			this.refAndDeref(currentLine);
+			
+			if(fileExt.equals(".cpp")) {
+				this.refAndDeref(currentLine);
+			}
+			
 			this.weightTwoKeywords(currentLine);
 		}
-		
 		return this.getSizeComplexity();
 	}
 	
@@ -53,12 +57,7 @@ public class SizeComplexity {
 		currentLine = currentLine.toLowerCase();
 		String[] words = currentLine.split(" ");
 
-		for (int i = 0; i < words.length; i++) {
-
-//				if((words[i].startsWith(keys[j])) && (words[i].length() > 1) && (words[i].charAt(1) != '&')){
-//					this.cs+=2;
-//				}
-				
+		for (int i = 0; i < words.length; i++) {				
 				if(Pattern.matches("^&[a-zA-z]+\\w+", words[i]) || Pattern.matches("[*][a-zA-z]+\\w+", words[i])) {
 					this.cs+=2;
 				}
