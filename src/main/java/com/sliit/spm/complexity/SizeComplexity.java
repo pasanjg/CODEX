@@ -3,6 +3,7 @@ package com.sliit.spm.complexity;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class SizeComplexity {
 
@@ -48,22 +49,20 @@ public class SizeComplexity {
 	}
 	
 	public void refAndDeref(String currentLine) {
-		String[] keys = {"&", "*"};
 		
 		currentLine = currentLine.toLowerCase();
 		String[] words = currentLine.split(" ");
-		
-		int  count = 0;
-		
+
 		for (int i = 0; i < words.length; i++) {
-			for(int j = 0; j < keys.length; j++) {
-				if((words[i].startsWith(keys[j])) && (words[i].length() > 1) && (words[i].charAt(1) != '&')){
-					count++;
+
+//				if((words[i].startsWith(keys[j])) && (words[i].length() > 1) && (words[i].charAt(1) != '&')){
+//					this.cs+=2;
+//				}
+				
+				if(Pattern.matches("^&[a-zA-z]+\\w+", words[i]) || Pattern.matches("[*][a-zA-z]+\\w+", words[i])) {
+					this.cs+=2;
 				}
-			}
-			
 		}
-		
 	}
 	
 	public void weightTwoKeywords(String currentLine) {
@@ -74,7 +73,7 @@ public class SizeComplexity {
 	public int countDuplicateKeywords(String currentLine, String[] keys) {
 
 		currentLine = currentLine.toLowerCase();
-		String words[] = currentLine.split(" ");
+		String[] words = currentLine.split(" ");
 		
 		int count = 0;
 
@@ -98,6 +97,5 @@ public class SizeComplexity {
 		
 		return false;
 	}
-	
 	
 }
