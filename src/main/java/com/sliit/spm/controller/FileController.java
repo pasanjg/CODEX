@@ -5,7 +5,6 @@ import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.sliit.spm.exception.ResourceNotFoundException;
 import com.sliit.spm.exception.UnprocessableEntityException;
-import com.sliit.spm.repo.FileRepository;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -27,8 +26,6 @@ import java.util.Date;
 @RestController
 @RequestMapping("/api/files")
 public class FileController {
-    @Autowired
-    private FileRepository fileRepository;
     @Autowired
     private ApplicationContext ctx;
 
@@ -73,7 +70,8 @@ public class FileController {
             throw new RuntimeException("IOError writing file to output stream");
         }
     }
-    public String downloadFIleIntoServer(String id){
+    @GetMapping("/download/{id}")
+    public String downloadFIleIntoServer(@PathVariable String id){
         GridFsOperations gridOperations = (GridFsOperations) ctx.getBean("gridFsTemplate");
 
         GridFSFile file = gridOperations.findOne(new Query().addCriteria(Criteria.where("_id").is(id)));
@@ -85,6 +83,7 @@ public class FileController {
         try {
             inputStream = gridOperations.getResource(file).getInputStream();
             File nFile = new File(System.getProperty("user.dir")+"/temp/"+name);
+            boolean s = nFile.getParentFile().mkdirs();
             boolean r =nFile.createNewFile();
             os = new FileOutputStream(nFile,false);
             byte[] buffer = new byte[1024];
