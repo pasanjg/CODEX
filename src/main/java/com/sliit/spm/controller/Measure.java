@@ -3,76 +3,78 @@ package com.sliit.spm.controller;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Measure {
 
     private final static int SPACE = 32;
     private final static int LOGICAL_AND = 38;
     private final static int LOGICAL_OR = 124;
+    private final static int BRACKET_OPEN = 40;
     private final static int BRACKET_CLOSE = 41;
+    private final static int NEW_LINE = 10;
+    private final static int SLASH= 47;
+    private final static int STAR= 42;
 
-    private int currentChar;
-    private int prevChar;
+    private BufferedReader bufferedReader;
+    private String currentLine;
     private String word;
-    private String line;
+    private String path;
     private String detectedKeyword;
     private String prevDetectedKeyword;
-    private int count;
+    private String patterIf = "^if$";
+    private Pattern pattern;
+    Matcher matcher;
     private int weight;
-    private String file;
-    private FileReader fileReader;
+    private int count;
     private JSONObject json;
     private JSONObject tempJSON;
-    private JSONArray jsonArray;
+    private JSONArray tokenArray;
     private JSONArray tempArr;
+    private boolean isMultiLineComment;
+    private boolean isSingleLineComment;
+    private int prevChar;
+    private int currentChar;
 
-    public Measure(String file){
-        this.file = file;
-        prevChar=0;
+    public Measure(String path) {
+        this.path = path;
+        weight = 0;
+        count = 0;
         word = "";
-        line = "";
+        isMultiLineComment = false;
+        isSingleLineComment = false;
         detectedKeyword = "";
         prevDetectedKeyword = "";
-        count =1;
-        weight = 0;
         json = new JSONObject();
         tempJSON = new JSONObject();
-        jsonArray = new JSONArray();
+        tokenArray = new JSONArray();
         tempArr = new JSONArray();
-        try {
-            fileReader = new FileReader(System.getProperty("user.dir")+"/temp/" + this.file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private int readChar(){
-        try {
-            return fileReader.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
-        }
     }
 
     public void detectConditionalControlStructure(){
-        if (word.contains("if")){
+        if (word.startsWith("if(") || word.startsWith("if (")){
             weight++;
             word = "";
             detectedKeyword = "if";
-            jsonArray.put("if");
+            tokenArray.put("if");
         }
     }
 
+    public void detectBracketClose(){
+        if(currentChar==BRACKET_CLOSE){
+            prevDetectedKeyword = detectedKeyword;
+            detectedKeyword = "";
+            word="";
+        }
+    }
     public void detectLogicalOperator(int increment){
         if (currentChar == LOGICAL_AND) {
             if (prevChar != LOGICAL_AND) {
                 word = "";
                 weight += increment;
-                jsonArray.put("AND");
+                tokenArray.put("AND");
             } else {
                 word = "";
             }
@@ -80,21 +82,10 @@ public class Measure {
             if (prevChar != LOGICAL_OR) {
                 word = "";
                 weight+=increment;
-                jsonArray.put("OR");
+                tokenArray.put("OR");
             } else {
                 word = "";
             }
-        }
-    }
-
-    public void detectBracketClose(){
-        if(currentChar==BRACKET_CLOSE){
-            prevDetectedKeyword =detectedKeyword;
-            detectedKeyword = "";
-//            if(prevDetectLogic != null && !prevDetectLogic.equals("")){
-//                jsonArray.put(prevDetectLogic);
-//                prevDetectLogic=null;
-//            }
         }
     }
 
@@ -102,26 +93,31 @@ public class Measure {
         /*
         detect for loop
          */
-        if(word.contains("for")){
+        if(word.startsWith("for(") || word.startsWith("for (")){
             weight += 2;
             word = "";
             detectedKeyword = "for";
-            jsonArray.put("for");
+            tokenArray.put("for");
         }
-        if(word.contains("do")){
+        if(word.startsWith("do{") || word.startsWith("do {")){
             weight += 2;
             word = "";
             detectedKeyword = "do";
-            jsonArray.put("do-while");
+            tokenArray.put("do-while");
         }
         /*
         detect while loop
          */
-        if(word.contains("while") && (!detectedKeyword.contains("do") && (!prevDetectedKeyword.contains("do")))){
-            weight += 2;
-            word = "";
-            detectedKeyword = "while";
-            jsonArray.put("while");
+        if(word.startsWith("while (") || word.startsWith("while(")){
+            if(!detectedKeyword.contains("do") && !prevDetectedKeyword.contains("do")){
+                detectedKeyword = "while";
+                word = "";
+            }else{
+                weight += 2;
+                word = "";
+                detectedKeyword = "while";
+                tokenArray.put("while");
+            }
         }
     }
 
@@ -130,7 +126,7 @@ public class Measure {
             weight += 1;
             word = "";
             detectedKeyword = "catch";
-            jsonArray.put("catch");
+            tokenArray.put("catch");
         }
     }
 
@@ -141,46 +137,87 @@ public class Measure {
         }
     }
 
-    public void measureCtC(){
-        while ((currentChar=readChar())!=-1){
-
-            line = line.concat(Character.toString((char) currentChar));
-            if(currentChar==10){
-                tempJSON.put("no",count);
-                tempJSON.put("line",line.replace("  ",""));
-                line = "";
-                tempJSON.put("tokens",jsonArray);
-                tempArr.put(tempJSON);
-                tempJSON = new JSONObject();
-                jsonArray = new JSONArray();
-                count++;
-            }
-
-            if(this.currentChar != SPACE){
-                word = word.concat(Character.toString((char) currentChar));
-                detectConditionalControlStructure();
-                detectBracketClose();
-                if(detectedKeyword.equals("if")){
-                    detectLogicalOperator(1);
-                }
-                detectIterativeControlStructure();
-
-                if(detectedKeyword.equals("while") || detectedKeyword.equals("for") || detectedKeyword.equals("do"))
-                    detectLogicalOperator(2);
-                detectCatchStatement();
-                detectSwitch();
-                if(prevDetectedKeyword.equals("switch") && word.contains("case")) {
-                    jsonArray.put("case");
-                    weight++;
-                }
-
-            }
-            else
-                word = "";
-            prevChar = currentChar;
+    public void detectCase(){
+        if(prevDetectedKeyword.equals("switch") && word.startsWith("case")) {
+            word = "";
+            weight++;
+            tokenArray.put("case");
+        }
+        if(prevDetectedKeyword.equals("switch") && word.startsWith("default")) {
+            word = "";
+            prevDetectedKeyword="";
         }
     }
 
+    public void commentsDetector(){
+        if(prevChar == SLASH && currentChar == STAR) {
+            isMultiLineComment = true;
+        }
+        if(prevChar==STAR && currentChar == SLASH) {
+            isMultiLineComment=false;
+        }
+        if(prevChar==SLASH && currentChar == SLASH) {
+            isSingleLineComment = true;
+        }
+    }
+    public void mesaureCtC() {
+        try{
+            bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.path));
+
+            char[] temp;
+            while ((currentLine= bufferedReader.readLine()) != null)
+            {
+                isSingleLineComment = false;
+                count++;
+                currentLine = currentLine.trim();
+                word = "";
+                temp = currentLine.toCharArray();
+                tempJSON = new JSONObject();
+                tokenArray = new JSONArray();
+
+                for (int ch: temp) {
+                    currentChar = ch;
+                    commentsDetector();
+
+                    if(isSingleLineComment || isMultiLineComment){
+                        prevChar = currentChar;
+                        continue;
+                    }
+                    if((ch == SPACE) || (prevChar==STAR && currentChar == SLASH)) {
+                        word="";
+                    }else{
+                        word = word.concat(Character.toString((char) ch));
+                        detectBracketClose();
+                        detectConditionalControlStructure();
+                        if(detectedKeyword.equals("if")){
+                            detectLogicalOperator(1);
+                        }
+                        detectIterativeControlStructure();
+                        if(detectedKeyword.equals("while") || detectedKeyword.equals("for") || detectedKeyword.equals("do")) {
+                            detectLogicalOperator(2);
+                        }
+
+                        detectCatchStatement();
+
+                        detectSwitch();
+                        detectCase();
+                    }
+                    prevChar = ch;
+                }
+
+                tempJSON.put("no",count);
+                tempJSON.put("line",currentLine);
+                tempJSON.put("token",tokenArray);
+                tempArr.put(tempJSON);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getWeight() {
+        return weight;
+    }
     public String get() {
         json = new JSONObject();
         json.put("code",tempArr);
