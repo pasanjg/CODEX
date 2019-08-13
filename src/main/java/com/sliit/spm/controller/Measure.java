@@ -4,17 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Measure {
 
     private final static int SPACE = 32;
     private final static int LOGICAL_AND = 38;
     private final static int LOGICAL_OR = 124;
-    private final static int BRACKET_OPEN = 40;
     private final static int BRACKET_CLOSE = 41;
-    private final static int NEW_LINE = 10;
     private final static int SLASH= 47;
     private final static int STAR= 42;
 
@@ -24,10 +20,7 @@ public class Measure {
     private String path;
     private String detectedKeyword;
     private String prevDetectedKeyword;
-    private String patterIf = "^if$";
-    private Pattern pattern;
-    Matcher matcher;
-    private int weight;
+    private int ctc;
     private int count;
     private JSONObject json;
     private JSONObject tempJSON;
@@ -40,7 +33,7 @@ public class Measure {
 
     public Measure(String path) {
         this.path = path;
-        weight = 0;
+        ctc = 0;
         count = 0;
         word = "";
         isMultiLineComment = false;
@@ -55,7 +48,7 @@ public class Measure {
 
     public void detectConditionalControlStructure(){
         if (word.startsWith("if(") || word.startsWith("if (")){
-            weight++;
+            ctc++;
             word = "";
             detectedKeyword = "if";
             tokenArray.put("if");
@@ -73,7 +66,7 @@ public class Measure {
         if (currentChar == LOGICAL_AND) {
             if (prevChar != LOGICAL_AND) {
                 word = "";
-                weight += increment;
+                ctc += increment;
                 tokenArray.put("AND");
             } else {
                 word = "";
@@ -81,7 +74,7 @@ public class Measure {
         }else if (currentChar == LOGICAL_OR) {
             if (prevChar != LOGICAL_OR) {
                 word = "";
-                weight+=increment;
+                ctc+=increment;
                 tokenArray.put("OR");
             } else {
                 word = "";
@@ -94,13 +87,13 @@ public class Measure {
         detect for loop
          */
         if(word.startsWith("for(") || word.startsWith("for (")){
-            weight += 2;
+            ctc += 2;
             word = "";
             detectedKeyword = "for";
             tokenArray.put("for");
         }
         if(word.startsWith("do{") || word.startsWith("do {")){
-            weight += 2;
+            ctc += 2;
             word = "";
             detectedKeyword = "do";
             tokenArray.put("do-while");
@@ -113,7 +106,7 @@ public class Measure {
                 detectedKeyword = "while";
                 word = "";
             }else{
-                weight += 2;
+                ctc += 2;
                 word = "";
                 detectedKeyword = "while";
                 tokenArray.put("while");
@@ -123,7 +116,7 @@ public class Measure {
 
     public void detectCatchStatement(){
         if(word.contains("catch")){
-            weight += 1;
+            ctc += 1;
             word = "";
             detectedKeyword = "catch";
             tokenArray.put("catch");
@@ -140,7 +133,7 @@ public class Measure {
     public void detectCase(){
         if(prevDetectedKeyword.equals("switch") && word.startsWith("case")) {
             word = "";
-            weight++;
+            ctc++;
             tokenArray.put("case");
         }
         if(prevDetectedKeyword.equals("switch") && word.startsWith("default")) {
@@ -184,7 +177,7 @@ public class Measure {
                         continue;
                     }
                     if((ch == SPACE) || (prevChar==STAR && currentChar == SLASH)) {
-                        word="";
+                        word = "";
                     }else{
                         word = word.concat(Character.toString((char) ch));
                         detectBracketClose();
@@ -216,12 +209,12 @@ public class Measure {
     }
 
     public int getWeight() {
-        return weight;
+        return ctc;
     }
     public String get() {
         json = new JSONObject();
         json.put("code",tempArr);
-        json.put("weight",weight);
+        json.put("weight",getWeight());
         return json.toString();
     }
 }
