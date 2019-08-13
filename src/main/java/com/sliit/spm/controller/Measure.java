@@ -208,13 +208,13 @@ public class Measure {
         }
     }
 
-    public int getWeight() {
+    public int getCtc() {
         return ctc;
     }
     public String get() {
         json = new JSONObject();
         json.put("code",tempArr);
-        json.put("weight",getWeight());
+        json.put("ctc",getCtc());
         return json.toString();
     }
 }
