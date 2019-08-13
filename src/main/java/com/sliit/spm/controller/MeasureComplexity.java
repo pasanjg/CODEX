@@ -18,7 +18,8 @@ public class MeasureComplexity {
 
         Measure measure = new Measure(fileName);
         measure.measureCtC();
-        return measure.get();
+//        return measure.get();
+        return measure.getCodeInheritance();
     }
 }
 
