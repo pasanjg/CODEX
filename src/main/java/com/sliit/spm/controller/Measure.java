@@ -219,7 +219,7 @@ public class Measure {
 					inheritanceObj.put("line", line);
 
 					if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
-						if(line.contains(" extends ") || line.contains(" implements ") ) {
+						if (line.contains(" extends ") || line.contains(" implements ")) {
 							ci = 0;
 						}
 						totalCi += ci;
@@ -243,7 +243,7 @@ public class Measure {
 									ciCount++;
 								}
 							}
-							
+
 							ci = ciCount;
 						}
 
@@ -252,10 +252,65 @@ public class Measure {
 					count++;
 
 				} else if (this.file.contains(".cpp")) {
-					return line;
+					line = reader.readLine();
+					
+					if (line == null) {
+						break;
+					}
+					
+					if(containsIgnoreCase(line, " main()")) {
+						ci = 0;
+					}
+
+					comment = "comment";
+					
+					if (line.contains("//")) {
+						System.out.println(line.charAt(0));
+						comment = line.substring(0, line.indexOf("//"));
+					}
+					
+					inheritanceObj.put("line", line);
+					
+					if(!comment.matches(".*[a-zA-Z].*")) {
+						ci = 0;
+					}
+					
+					
+					if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+						if (containsIgnoreCase(line, "class ") ) {
+							ci = 0;
+						}
+						totalCi += ci;
+						inheritanceObj.put("Ci", ci);
+						System.out.println(totalCi);
+					}
+					
+					inheritanceObj.put("number", count);
+					inheritanceObjArr.put(inheritanceObj);
+					inheritanceObj = new JSONObject();
+					
+					if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+
+						if (containsIgnoreCase(line, "class ")) {
+							int ciCount = 2;
+
+							for (int i = 0; i < line.length(); i++) {
+								if (line.charAt(i) == ':') {
+									ciCount++;
+								}
+							}
+
+							ci = ciCount;
+						}
+
+					}
+					
 				}
 
-			}
+					count++;
+
+				}
+
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
