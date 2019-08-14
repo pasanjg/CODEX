@@ -197,45 +197,60 @@ public class Measure {
 			reader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.file));
 
 			String line = reader.readLine();
-			
+
 			int count = 1;
-			
+			inheritanceObj = new JSONObject();
+
 			while (line != null) {
-				
+
 				if (this.file.contains(".java")) {
 					line = reader.readLine();
-					
-					if(line == null) {
+
+					if (line == null) {
 						break;
 					}
-					
+
 					comment = "comment";
-					if(line.contains("//")) {
+					if (line.contains("//")) {
 						System.out.println(line.charAt(0));
-							comment = line.substring(0, line.indexOf("//"));
+						comment = line.substring(0, line.indexOf("//"));
 					}
-					
-					
-					inheritanceObj.put("line",line);
-					
-					if( line!= null && line.matches(".*[a-zA-Z].*") &&  comment.matches(".*[a-zA-Z].*") ) {
-						totalCi +=ci;
-						inheritanceObj.put("Ci",ci);
+
+					inheritanceObj.put("line", line);
+
+					if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+						if(line.contains(" extends ") || line.contains(" implements ") ) {
+							ci = 0;
+						}
+						totalCi += ci;
+						inheritanceObj.put("Ci", ci);
 						System.out.println(totalCi);
 					}
-					inheritanceObj.put("number", totalCi);
-					inheritanceObjArr.put(  inheritanceObj );	
+					inheritanceObj.put("number", count);
+					inheritanceObjArr.put(inheritanceObj);
 					inheritanceObj = new JSONObject();
-					
-					if( line != null ) {
-						if(containsIgnoreCase(line, " extends ")) {
+
+					if (line != null) {
+						if (containsIgnoreCase(line, " extends ")) {
 							ci = 3;
 						}
 
+						if (containsIgnoreCase(line, " implements ")) {
+							int ciCount = 3;
+
+							for (int i = 0; i < line.length(); i++) {
+								if (line.charAt(i) == ',') {
+									ciCount++;
+								}
+							}
+							
+							ci = ciCount;
+						}
+
 					}
-					
+
 					count++;
-					
+
 				} else if (this.file.contains(".cpp")) {
 					return line;
 				}
@@ -245,19 +260,20 @@ public class Measure {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		inheritanceObj.put("totalCi", totalCi);
+		inheritanceObjArr.put(inheritanceObj);
 		return inheritanceObjArr.toString();
 	}
 
 	public static boolean containsIgnoreCase(String str, String subString) {
-        return str.toLowerCase().contains(subString.toLowerCase());
-    }
-	
+		return str.toLowerCase().contains(subString.toLowerCase());
+	}
+
 	public String get() {
 		json = new JSONObject();
 		json.put("code", tempArr);
 		json.put("weight", weight);
 		return json.toString();
 	}
-	
+
 }
