@@ -17,7 +17,7 @@ public class MeasureComplexity {
     public String calculateCnC(@PathVariable String fileName){
 
         Measure measure = new Measure(fileName);
-        measure.measureCtC();
+        measure.mesaureCtC();
         return measure.get();
     }
 }
