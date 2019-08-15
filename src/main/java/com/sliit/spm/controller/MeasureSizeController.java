@@ -14,7 +14,7 @@ import com.sliit.spm.complexity.SizeComplexity;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/complexity")
+@RequestMapping("/api/measure")
 public class MeasureSizeController {
 	
 	@GetMapping("/size")
