@@ -2,9 +2,13 @@ package com.sliit.spm.complexity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class SizeComplexity {
@@ -14,6 +18,11 @@ public class SizeComplexity {
 	private String readLine;
 	private String detectedWord;
 	private int count;
+
+	private JSONObject json;
+    private JSONObject tempJSON;
+    private JSONArray tokenArray;
+    private JSONArray tempArr;
 
 	int lineNo = 1;
 
@@ -44,13 +53,20 @@ public class SizeComplexity {
 	public int calculateTotalSizeComplexity() throws FileNotFoundException {
 
 		Scanner scanner = new Scanner(this.getFile());
+		String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
+		
+		json = new JSONObject();
+        
 
 		while (scanner.hasNext()) {
 
 			this.readLine = scanner.nextLine();
 			String currentLine = this.readLine.trim();
 			String[] skipKeys = { "/", "*" };
-			String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
+			
+			this.tempArr = new JSONArray();
+			this.tempJSON = new JSONObject();
+	        this.tokenArray = new JSONArray();
 			
 			this.count = 0;
 
@@ -72,6 +88,14 @@ public class SizeComplexity {
 			this.sizeOfKeywords(currentLine);
 			this.sizeOfManipulators(currentLine);
 			this.sizeOfQuotes(currentLine);
+			this.sizeOfClasses(currentLine);
+			this.sizeOfMethods(currentLine);
+			this.sizeOfObjects(currentLine);
+			this.sizeOfVariables(currentLine);
+			this.sizeOfArrays(currentLine);
+			
+			
+			this.tempJSON.put("tokens", this.tempArr);
 			
 			this.lineNo++;
 			
@@ -148,6 +172,31 @@ public class SizeComplexity {
 	public void sizeOfQuotes(String currentLine) {
 		this.cs += this.textInQuotes(currentLine);
 	}
+	
+	public void sizeOfClasses(String currentLine) {
+		this.cs += this.countClasses(currentLine);
+	}
+		
+	public void sizeOfMethods(String currentLine) {
+		this.cs += this.countMethods(currentLine);
+	}
+	
+	public void sizeOfObjects(String currentLine) {
+		this.cs += this.countObjects(currentLine);
+	}
+	
+	public void sizeOfVariables(String currentLine) {
+		this.cs += this.countVariables(currentLine);
+	}
+	
+	public void sizeOfArrays(String currentLine) {
+		this.cs += this.countArrays(currentLine);
+	}
+	
+	public void sizeOfNumbers(String currentLine) {
+		this.cs += this.countNumbers(currentLine);
+	}
+
 
 	public int countDuplicateKeywords(String currentLine, String[] keys) {
 
@@ -159,6 +208,7 @@ public class SizeComplexity {
 			for (int j = 0; j < keys.length; j++) {
 				if (words[i].contains(keys[j])) {
 					count++;
+					this.tempArr.put(keys[j]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -177,11 +227,13 @@ public class SizeComplexity {
 			for (int j = 0; j < keys.length; j++) {
 				if (words[i].equals(keys[j])) {
 					count++;
+					this.tempArr.put(keys[j]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 				} else {
 					if (words[i].contains(keys[j])) {
 						String[] tempWord = words[i].split(Pattern.quote(keys[j]));
 						count += (tempWord.length - 1);
+						this.tempArr.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				}
@@ -203,11 +255,13 @@ public class SizeComplexity {
 					if (isValidKey(regex, words[i - 1])) {
 						this.detectedWord = words[i];
 						count++;
+						this.tempArr.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 					else if (isValidKey(regex, words[i + 1])) {
 						this.detectedWord = words[i];
 						count++;
+						this.tempArr.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				} else {
@@ -215,6 +269,7 @@ public class SizeComplexity {
 						String[] tempWord = words[i].split(Pattern.quote(keys[j]));
 						this.detectedWord = words[i];
 						count += (tempWord.length - 1);
+						this.tempArr.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				}
@@ -232,8 +287,120 @@ public class SizeComplexity {
 		Matcher m = p.matcher(currentLine);
 		while (m.find()) {
 			count++;
-//			System.out.println("Quotes: " + m.group(1) + " " + count);
+			this.tempArr.put(m.group(1));
 			System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + m.group(1) +"] count: " + count + "[Cs: " + this.cs + "]");
+		}
+		
+		return count;
+	}
+	
+	public int countClasses(String currentLine) {
+		
+		String[] words = currentLine.split(" ");
+		
+		int count = 0;
+		
+		for (int i = 0; i < words.length; i++) {
+			if ((i + 1) < words.length) {
+				if (words[i].equals("class")) {
+					count++;
+					this.tempArr.put(words[i + 1]);
+					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+				}
+			}
+		}
+		
+		return count;
+	}
+	
+	public int countMethods(String currentLine) {
+		
+		String[] words = currentLine.split(" ");
+		
+		int count = 0;
+		
+		for (int i = 0; i < words.length; i++) {
+			if ((i + 1) < words.length) {
+				if (Pattern.matches("[a-zA-Z0-9_]*\\s[a-zA-Z0-9_]*\\(", words[i] + " " + words[i + 1])) {
+					count++;
+					this.tempArr.put(words[i + 1]);
+					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+				}
+			}
+		}
+		
+		return count;
+	}
+	
+	public int countObjects(String currentLine) {
+		
+		String[] words = currentLine.split(" ");
+		
+		int count = 0;
+		
+		for (int i = 0; i < words.length; i++) {
+			if ((i + 2) < words.length) {
+				if (Pattern.matches("\\=\\s(new)\\s[a-zA-Z0-9_]*\\(", words[i] + " " + words[i + 1] + " " + words[i + 2])) {
+					count++;
+					this.tempArr.put(words[i + 1]);
+					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i - 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+				}
+			}
+		}
+		
+		return count;
+	}
+	
+	public int countVariables(String currentLine) {
+		
+		String[] words = currentLine.split(" ");
+		
+		int count = 0;
+		
+		for (int i = 0; i < words.length; i++) {
+			if ((i + 1) < words.length) {
+				if (Pattern.matches("(int|String|float|double)\\s[a-zA-Z0-9_]*", words[i] + " " + words[i + 1])) {
+					count++;
+					this.tempArr.put(words[i + 1]);
+					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+				}
+			}
+		}
+		
+		return count;
+	}
+	
+	public int countArrays(String currentLine) {
+		
+		String[] words = currentLine.split(" ");
+		
+		int count = 0;
+		
+		for (int i = 0; i < words.length; i++) {
+			if ((i + 1) < words.length) {
+				if (Pattern.matches("[a-zA-Z0-9_]*\\[]\\s[a-zA-Z0-9_]*", words[i] + " " + words[i + 1])) {
+					count++;
+					this.tempArr.put(words[i + 1]);
+					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+				}
+			}
+		}
+		
+		return count;
+	}
+	
+	public int countNumbers(String currentLine) {
+		
+		String[] words = currentLine.split(" ");
+		
+		int count = 0;
+		
+		for (int i = 0; i < words.length; i++) {
+			if (Pattern.matches("^[0-9]+", words[i])) {
+				count++;
+				this.tempArr.put(words[i]);
+				System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i] + "] count: " + count + "[Cs: " + this.cs + "]");
+			}
 		}
 		
 		return count;
@@ -253,6 +420,7 @@ public class SizeComplexity {
 	}
 
 	public boolean canSkip(String currentLine, String[] skipKey) {
+		
 		for (int i = 0; i < skipKey.length; i++) {
 			if (currentLine.startsWith(skipKey[i])) {
 				this.lineNo++;
