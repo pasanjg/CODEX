@@ -6,6 +6,7 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import com.sliit.spm.exception.ResourceNotFoundException;
 import com.sliit.spm.exception.UnprocessableEntityException;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -47,8 +48,11 @@ public class FileController {
 
         //get file extention
         String ext = "." + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
+        String storeID = gridOperations.store(inputStream, fileName + ext, file.getContentType(), metaData).toString();
 
-        return gridOperations.store(inputStream, fileName + ext, file.getContentType(), metaData).toString();
+        JSONObject json = new JSONObject();
+        json.put("id",storeID);
+        return json.toString();
     }
 
     @GetMapping("/{id}")
@@ -104,7 +108,9 @@ public class FileController {
                 e.printStackTrace();
             }
         }
-        return name;
+        JSONObject json = new JSONObject();
+        json.put("fileName",name);
+        return json.toString();
 
     }
 }
