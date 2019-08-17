@@ -31,6 +31,7 @@ public class Measure {
     private String detectedKeyword;
     private String prevDetectedKeyword;
     private int ctc;
+    private int totalCtc;
     private int count;
     private JSONObject json;
     private JSONObject tempJSON;
@@ -77,6 +78,7 @@ public class Measure {
     public Measure(String path) {
         this.path = path;
         ctc = 0;
+        totalCtc = 0;
         count = 0;
 //        r_word = "";
         isMultiLineComment = false;
@@ -401,11 +403,13 @@ public class Measure {
                     }
                     prevChar = ch;
                 }
-
+                totalCtc += ctc;
                 tempJSON.put("no",count);
                 tempJSON.put("line",currentLine);
                 tempJSON.put("token",tokenArray);
+                tempJSON.put("ctc",ctc);
                 tempArr.put(tempJSON);
+                ctc = 0;
             }
         } catch (IOException e) {
             LOGGER.log(Level.INFO, e.getMessage());
@@ -556,13 +560,13 @@ public class Measure {
 
 
 
-    public int getCtc() {
-        return ctc;
+    public int getTotalCtc() {
+        return totalCtc;
     }
     public String get() {
         json = new JSONObject();
         json.put("code",tempArr);
-        json.put("ctc",getCtc());
+        json.put("totalCtc",getTotalCtc());
         return json.toString();
     }
 }
