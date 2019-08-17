@@ -26,6 +26,7 @@ public class Measure {
 	LinkedList<String> list = new LinkedList<String>();
 
     private BufferedReader bufferedReader;
+    private BufferedReader bufferedReader_rec;
     private String currentLine;
     private String word;
     private String path;
@@ -46,37 +47,40 @@ public class Measure {
     private JSONArray inheritanceObjArr;
     private JSONObject inheritanceObj;
     private SizeComplexity sizeComplexity;
-//	int cnc = 0;
-//	int cr = 0;
-//	File file;
-//	int n_count = 0;
-//	int b_count = 0;
-//	int arrCount = 0;
-//	boolean status = false;
-//	boolean _if = false;
-//	boolean _for = false;
-//	boolean _while = false;
-//	boolean inMethod = false;
-//	boolean preLine = false;
-//	boolean isFirst = false;
-//	String val;
-//    String _methodName = "";
-//    String methodName = "";
-//    String r_word = "";
-//    int startLine = 0;
-//    int endLine = 0;
-//    int startNo = 0;
-//    int endNo = 0;
-//    int arrIndex = 0;
-//    int currentStartLine = 0;
-//    int currentEndLine = 0;
-//    boolean isRec = false;
-//    int bracketCount = 0;
-//    int _startLineArray[] = new int[100];
-//    int _endLineArray[] = new int[100];
-//    int startLineArray[];
-//    int endLineArray[];
-//    int lineNo = 1;
+    private int cnc = 0;
+    private int cr = 0;
+    private File file;
+    private int n_count = 0;
+    private int b_count = 0;
+    private int arrCount = 0;
+    private boolean status = false;
+    private boolean _if = false;
+    private boolean _for = false;
+    private boolean _while = false;
+    private boolean inMethod = false;
+    private boolean preLine = false;
+    private boolean isFirst = false;
+    private String val;
+    private String _methodName = "";
+    private String methodName = "";
+    private String r_word = "";
+    private int startLine = 0;
+    private int endLine = 0;
+    private int startNo = 0;
+    private int endNo = 0;
+    private int arrIndex = 0;
+    private int currentStartLine = 0;
+    private int currentEndLine = 0;
+    private boolean isRec = false;
+    private int bracketCount = 0;
+    private int _startLineArray[] = new int[100];
+    private int _endLineArray[] = new int[100];
+    private int startLineArray[];
+    private int endLineArray[];
+    private int lineNo = 1;
+    private int ci = 0;
+    private int totalCi = 0;
+    private String comment = " ";
 
     public Measure(String path) {
         this.path = path;
@@ -84,7 +88,7 @@ public class Measure {
         totalCtc = 0;
         totalCs = 0;
         count = 0;
-//        r_word = "";
+        r_word = "";
         isMultiLineComment = false;
         isSingleLineComment = false;
         detectedKeyword = "";
@@ -206,174 +210,313 @@ public class Measure {
         }
     }
 
-//    public boolean canSkip(String currentLine, String[] skipKey) {
-//		for (int i = 0; i < skipKey.length; i++) {
-//			if (currentLine.startsWith(skipKey[i])) {
-//				this.lineNo++;
-//				return true;
-//			}
-//		}
-//
-//		return false;
-//	}
+    public boolean canSkip(String currentLine, String[] skipKey) {
+		for (int i = 0; i < skipKey.length; i++) {
+			if (currentLine.startsWith(skipKey[i])) {
+				this.lineNo++;
+				return true;
+			}
+		}
 
-//    public int countCncValue(String currentLine, String[] keys) {
-//
-//		currentLine = currentLine.trim();
-//
-//		if(status) {
-//			if(currentLine.startsWith("}")) {
-//				n_count--;
-//				if(n_count==0) {
-//					status = false;
-//					val = null;
-//					list.pop();
-//					val = list.peek();
-//				}
-//			}
-//		}
-//
-//		for (int i = 0; i < keys.length; i++) {
-//			if(currentLine.startsWith(keys[i])) {
-//				if(val == null) {
-//					val = keys[i];
-//					list.add(keys[i]);
-//				}
-//				if(val != keys[i]) {
-//					val = keys[i];
-//					list.add(keys[i]);
-//					//count = 0;
-//				}
-//				if(val == keys[i]) {
-//					status = true;
-//					n_count++;
-//
-//				}
-//				val = keys[i];
-//			}
-//		}
-//
-//		if(currentLine.equals("{") || currentLine.equals("}")) {
-//			return 0;
-//		} else {
-//			return n_count;
-//		}
-//	}
+		return false;
+	}
 
-//    public int trackRec(String currentLine, String[] keys) {
-//		int temp = 0;
-//		int count = 0;
-//		int c_count = 0;
-//
-//		currentLine = currentLine.trim();
-//		String[] lineWords = currentLine.split(" ");
-//		char[] charLine = currentLine.toCharArray();
-//
-//		if(lineWords.length >= 3) {
-//			String keyword = lineWords[1].trim();
-//			if(currentLine != null || currentLine != "" ) {
-//				if(!lineWords[0].equals("class") || !lineWords[1].equals("class")) {
-//					if(keyword.equals("static") || keyword.equals("void") || keyword.equals("String") || keyword.equals("int") || keyword.equals("double") || keyword.equals("float") || keyword.equals("long")) {
-//			        	if(keyword.equals("static")) {
-//			        		if(!lineWords[3].equals("main(String[]") || !lineWords[3].equals("main(String")) {
-//			        			inMethod = true;
-//			        			preLine = true;
-//			        			isFirst = true;
-//			        			word = lineWords[3];
-//		            			startLine = lineNo;
-//		            			endLine = lineNo;
-//		            			b_count++;
-//		            			temp = b_count;
-//		            			System.out.println(word);
-//			        		}
-//			        	} else {
-//			        		inMethod = true;
-//			        		preLine = true;
-//			        		isFirst = true;
-//			        		word = lineWords[2];
-//		            		startLine = lineNo;
-//		            		endLine = lineNo;
-//		            		b_count++;
-//		            		temp = b_count;
-//		            		System.out.println(word);
-//			        	}
-//			        }
-//				}
-//			}
-//		}
-//		if(temp == 1) {
-//			temp++;
-//		} else {
-//			if(inMethod) {
-//				if(preLine) {
-//					preLine = false;
-//				} else {
-//					if(currentLine.equals("{") || currentLine.endsWith("{")) {
-//						b_count++;
-//					}
-//					if(currentLine.equals("}")) {
-//						b_count--;
-//					}
-//				}
-//			}
-//		}
-//		if(b_count == 0) {
-//			endLine = lineNo-1;
-//			inMethod = false;
-//			if(isRec) {
-//				_startLineArray[arrCount] = startLine;
-//				_endLineArray[arrCount] = endLine;
-//				arrCount++;
-//				isRec = false;
-//			}
-//		}
-//
-//		char[] charLineArr = word.toCharArray();
-//        if(isFirst) {
-//        	boolean status = true;
-//        	for( int ch: charLineArr) {
-//	        	if(status) {
-//	        		if(ch == 40) {
-//	            		status = false;
-//	            	} else {
-//	            		c_count++;
-//	            	}
-//	        	}
-//	        }
-//
-//	        for(int x=0; x<c_count;x++) {
-//	        	_methodName = _methodName+charLineArr[x];
-//	        }
-//	        methodName = _methodName;
-//	        _methodName = "";
-//	        System.out.println(methodName);
-//	        isFirst = false;
-//        }
-//
-//        if(!(lineNo == startLine)) {
-//        	if(b_count > 0) {
-//        		if(!isFirst) {
-//	        		for(int x=0; x <lineWords.length; x++) {
-//		            	if(lineWords[x].startsWith(methodName)) {
-//		            		isRec = true;
-//		            		System.out.println(currentLine+"---->inside the core");
-//		            	}
-//		            }
-//	        	}
-//        	}
-//        }
-//		return b_count;
-//	}
+    public int countCncValue(String currentLine, String[] keys) {
+
+		currentLine = currentLine.trim();
+
+		if(status) {
+			if(currentLine.startsWith("}")) {
+				n_count--;
+				if(n_count==0) {
+					status = false;
+					val = null;
+					list.pop();
+					val = list.peek();
+				}
+			}
+		}
+
+		for (int i = 0; i < keys.length; i++) {
+			if(currentLine.startsWith(keys[i])) {
+				if(val == null) {
+					val = keys[i];
+					list.add(keys[i]);
+				}
+				if(val != keys[i]) {
+					val = keys[i];
+					list.add(keys[i]);
+					//count = 0;
+				}
+				if(val == keys[i]) {
+					status = true;
+					n_count++;
+
+				}
+				val = keys[i];
+			}
+		}
+
+		if(currentLine.equals("{") || currentLine.equals("}")) {
+			return 0;
+		} else {
+			return n_count;
+		}
+	}
+
+    public int trackRec(String currentLine, String[] keys) {
+		int temp = 0;
+		int count = 0;
+		int c_count = 0;
+
+		currentLine = currentLine.trim();
+		String[] lineWords = currentLine.split(" ");
+		char[] charLine = currentLine.toCharArray();
+
+		if(lineWords.length >= 3) {
+			String keyword = lineWords[1].trim();
+			if(currentLine != null || currentLine != "" ) {
+				if(!lineWords[0].equals("class") || !lineWords[1].equals("class")) {
+					if(keyword.equals("static") || keyword.equals("void") || keyword.equals("String") || keyword.equals("int") || keyword.equals("double") || keyword.equals("float") || keyword.equals("long")) {
+			        	if(keyword.equals("static")) {
+			        		if(!lineWords[3].equals("main(String[]") || !lineWords[3].equals("main(String")) {
+			        			inMethod = true;
+			        			preLine = true;
+			        			isFirst = true;
+			        			r_word = lineWords[3];
+		            			startLine = lineNo;
+		            			endLine = lineNo;
+		            			b_count++;
+		            			temp = b_count;
+		            			System.out.println(r_word);
+			        		}
+			        	} else {
+			        		inMethod = true;
+			        		preLine = true;
+			        		isFirst = true;
+			        		r_word = lineWords[2];
+		            		startLine = lineNo;
+		            		endLine = lineNo;
+		            		b_count++;
+		            		temp = b_count;
+		            		System.out.println(r_word);
+			        	}
+			        }
+				}
+			}
+		}
+		if(temp == 1) {
+			temp++;
+		} else {
+			if(inMethod) {
+				if(preLine) {
+					preLine = false;
+				} else {
+					if(currentLine.equals("{") || currentLine.endsWith("{")) {
+						b_count++;
+					}
+					if(currentLine.equals("}")) {
+						b_count--;
+					}
+				}
+			}
+		}
+		if(b_count == 0) {
+			endLine = lineNo-1;
+			inMethod = false;
+			if(isRec) {
+				_startLineArray[arrCount] = startLine;
+				_endLineArray[arrCount] = endLine;
+				arrCount++;
+				isRec = false;
+			}
+		}
+
+		char[] charLineArr = r_word.toCharArray();
+        if(isFirst) {
+        	boolean status = true;
+        	for( int ch: charLineArr) {
+	        	if(status) {
+	        		if(ch == 40) {
+	            		status = false;
+	            	} else {
+	            		c_count++;
+	            	}
+	        	}
+	        }
+
+	        for(int x=0; x<c_count;x++) {
+	        	_methodName = _methodName+charLineArr[x];
+	        }
+	        methodName = _methodName;
+	        _methodName = "";
+	        System.out.println(methodName);
+	        isFirst = false;
+        }
+
+        if(!(lineNo == startLine)) {
+        	if(b_count > 0) {
+        		if(!isFirst) {
+	        		for(int x=0; x <lineWords.length; x++) {
+		            	if(lineWords[x].startsWith(methodName)) {
+		            		isRec = true;
+		            		System.out.println(currentLine+"---->inside the core");
+		            	}
+		            }
+	        	}
+        	}
+        }
+		return b_count;
+	}
     public void mesaureCtC() {
         try{
 
+            bufferedReader_rec = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.path));
             bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.path));
             File file = new File(System.getProperty("user.dir")+ "/temp/" + this.path);
             String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
+            String line = bufferedReader.readLine();
 
+            while ((currentLine= bufferedReader_rec.readLine()) != null)
+            {
+                currentLine = currentLine.trim();
+                String[] skipKeys = { "/", "*" };
+                
+                if (canSkip(currentLine, skipKeys)) {
+					continue;
+				}
+
+				String[] keys = {"if", "for", "while", "else if","} else if", "}else if", "do"};
+				System.out.println(trackRec(currentLine, keys));
+				lineNo++;
+            }
+            System.out.println("arr count---------------------"+arrCount);
+            if(arrCount != 0) {
+		    	startLineArray = new int[arrCount];
+		        endLineArray = new int[arrCount];
+		        for(int x=0; x < arrCount; x++) {
+		        	startLineArray[x] = _startLineArray[x];
+		        	endLineArray[x] = _endLineArray[x];
+		        }
+		        System.out.println("starrrt"+startLineArray[0]);
+		        System.out.println("enddddd"+endLineArray[0]);
+		    }
+            
             char[] temp;
+            lineNo = 1;
             while ((currentLine= bufferedReader.readLine()) != null)
             {
+            	//lanka
+                if (this.path.contains(".java")) {
+                	System.out.println("test#############################");
+                    line = currentLine;
+                    System.out.println(line);
+                    if (line == null) {
+                        break;
+                    }
+
+                    comment = "comment";
+                    if (line.contains("//")) {
+                        System.out.println(line.charAt(0));
+                        comment = line.substring(0, line.indexOf("//"));
+                    }
+
+                    inheritanceObj.put("line", line);
+
+                    if (line.matches(".*[a-zA-Z].*") ) {
+                        if (line.contains(" class ")) {
+                            ci = 0;
+                        }
+                        totalCi += ci;
+                        tempJSON.put("ci",ci);
+                        System.out.println("Shalika------------"+totalCi);
+                    }
+//                    inheritanceObj.put("number", count);
+//                    inheritanceObjArr.put(inheritanceObj);
+//                    inheritanceObj = new JSONObject();
+
+//                    if (line != null) {
+                        if (containsIgnoreCase(line, " class ")) {
+                            ci = 1;
+                            System.out.println("test---------------------------------------------------");
+                        }
+
+                        if (containsIgnoreCase(line, " extends ")) {
+                            ci = 2;
+                        }
+
+                        if (containsIgnoreCase(line, " implements ")) {
+                            int ciCount = 2;
+
+                            for (int i = 0; i < line.length(); i++) {
+                                if (line.charAt(i) == ',') {
+                                    ciCount++;
+                                }
+                            }
+
+                            ci = ciCount;
+                        }
+
+                   // }
+
+//                    count++;
+
+                } else if (this.path.contains(".cpp")) {
+                    line = bufferedReader.readLine();
+
+                    if (line == null) {
+                        break;
+                    }
+
+                    if(containsIgnoreCase(line, " main()")) {
+                        ci = 0;
+                    }
+
+                    comment = "comment";
+
+                    if (line.contains("//")) {
+                        System.out.println(line.charAt(0));
+                        comment = line.substring(0, line.indexOf("//"));
+                    }
+
+                    inheritanceObj.put("line", line);
+
+                    if(!comment.matches(".*[a-zA-Z].*")) {
+                        ci = 0;
+                    }
+
+
+                    if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+                        if (containsIgnoreCase(line, " class ") ) {
+                            ci = 0;
+                        }
+                        totalCi += ci;
+                        tempJSON.put("ci",ci);
+                        System.out.println(totalCi);
+                    }
+
+//                    inheritanceObj.put("number", count);
+//                    inheritanceObjArr.put(inheritanceObj);
+//                    inheritanceObj = new JSONObject();
+
+                    if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+
+                        if (containsIgnoreCase(line, " class ")) {
+                            int ciCount = 1;
+
+                            for (int i = 0; i < line.length(); i++) {
+                                if (line.charAt(i) == ':') {
+                                    ciCount++;
+                                }
+                            }
+
+                            ci = ciCount;
+                        }
+
+                    }
+
+                }
+                
                 isSingleLineComment = false;
                 count++;
                 currentLine = currentLine.trim();
@@ -382,7 +525,7 @@ public class Measure {
                 tempJSON = new JSONObject();
                 tokenArray = new JSONArray();
 
-                //measure ctc value
+                
                 for (int ch: temp) {
                     currentChar = ch;
                     commentsDetector();
@@ -439,15 +582,38 @@ public class Measure {
                 sizeComplexity.sizeOfArrays(currentLine);
 
                 totalCtc += ctc;
+                
+                
+                String[] keys = {"if", "for", "while", "else if","} else if", "}else if", "do"};
+				cnc = countCncValue(currentLine, keys);
+				
+				if(arrCount != 0) {
+					startNo = startLineArray[arrIndex];
+					endNo = endLineArray[arrIndex];
+					if((startNo <= lineNo) && (endNo >= lineNo)) {
+						cr = this.cnc * 2;
+						
+						if(endNo == lineNo) {
+							if(!(arrIndex == arrCount-1)) {
+								arrIndex++;
+							}
+						}
+					} else {
+						cr = 0;
+					}
+				}
                 tempJSON.put("no",count);
                 tempJSON.put("line",currentLine);
                 tempJSON.put("cscTokens",sizeComplexity.getTempToken());
                 tempJSON.put("tokens",tokenArray);
+                tempJSON.put("cr",cr);
+                tempJSON.put("cnc value", cnc);
                 tempJSON.put("ctc",ctc);
                 tempJSON.put("cs",sizeComplexity.getComplexity()-totalCs);
                 tempArr.put(tempJSON);
                 totalCs = sizeComplexity.getComplexity();
                 ctc = 0;
+                lineNo++;
             }
         } catch (IOException e) {
             LOGGER.log(Level.INFO, e.getMessage());
@@ -605,88 +771,8 @@ public class Measure {
         json = new JSONObject();
         json.put("code",tempArr);
         json.put("totalCtc",getTotalCtc());
+        json.put("totalCi", totalCi);
         json.put("totalCs",sizeComplexity.getComplexity());
         return json.toString();
     }
 }
-
-
-
-//public String CalcNestingControlStructures() throws FileNotFoundException{
-//	Scanner recScanner = new Scanner(this.getFile());
-//	Scanner scanner = new Scanner(this.getFile());
-//    tempArr = new JSONArray();
-//
-//    while (recScanner.hasNext()) {
-//
-//		String currentLine = recScanner.nextLine().trim();
-//		String[] skipKeys = { "/", "*" };
-//		String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
-//
-//
-//		if (canSkip(currentLine, skipKeys)) {
-//			continue;
-//		}
-//
-//		String[] words = currentLine.split(" ");
-//		String[] keys = {"if", "for", "while", "else if","} else if", "}else if", "do"};
-//		System.out.println(currentLine+"---->"+trackRec(currentLine, keys));
-//
-//		this.lineNo++;
-//
-//	}
-//
-//    this.lineNo = 1;
-//    if(arrCount != 0) {
-//    	startLineArray = new int[arrCount];
-//        endLineArray = new int[arrCount];
-//        for(int x=0; x < arrCount; x++) {
-//        	startLineArray[x] = _startLineArray[x];
-//        	endLineArray[x] = _endLineArray[x];
-//        }
-//    }
-//    System.out.println(startLineArray[arrIndex]);
-//    System.out.println(endLineArray[arrIndex]);
-//
-//	while (scanner.hasNext()) {
-//
-//		String currentLine = scanner.nextLine().trim();
-//		String[] skipKeys = { "/", "*" };
-//		String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
-//		tempJSON = new JSONObject();
-//
-//		if (canSkip(currentLine, skipKeys)) {
-//			continue;
-//		}
-//		String[] words = currentLine.split(" ");
-//		String[] keys = {"if", "for", "while", "else if","} else if", "}else if", "do"};
-//		this.cnc = countCncValue(currentLine, keys);
-//		if(arrCount != 0) {
-//			startNo = startLineArray[arrIndex];
-//			endNo = endLineArray[arrIndex];
-//			if((startNo <= lineNo) && (endNo >= lineNo)) {
-//				this.cr = this.cnc * 2;
-//
-//				if(endNo == lineNo) {
-//					if(!(arrIndex == arrCount-1)) {
-//						arrIndex++;
-//					}
-//				}
-//			} else {
-//				this.cr = 0;
-//			}
-//		}
-//		tempJSON.put("lineNo", this.lineNo);
-//		tempJSON.put("statement", currentLine);
-//		tempJSON.put("cnc value", cnc);
-//		tempJSON.put("cr value", cr);
-//		tempArr.put(tempJSON);
-//		this.lineNo++;
-//
-//	}
-//	json = new JSONObject();
-//    json.put("code",tempArr);
-//    return json.toString();
-//
-//
-//}

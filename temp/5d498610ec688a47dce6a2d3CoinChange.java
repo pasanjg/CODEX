@@ -6,7 +6,7 @@ package DynamicProgramming;
 public class CoinChange {
 
     // Driver Program
-    public static void main(String[] args) {
+    public int print() {
 
         int amount = 12;
         int[] coins = {2, 4, 5};
@@ -46,7 +46,7 @@ public class CoinChange {
      * @param amount The amount for which we need to find the minimum number of coins.
      *               Finds the the minimum number of coins that make a given value.
      **/
-    public static int minimumCoins(int[] coins, int amount) {
+    public static int _minimumCoins(int[] coins, int amount) {
         //minimumCoins[i] will store the minimum coins needed for amount i
         int[] minimumCoins = new int[amount + 1];
 
@@ -73,7 +73,12 @@ public class CoinChange {
     public static void printAmount(int[] arr) {
         for (int i = 0; i < arr.length; i++) {
             System.out.print(arr[i] + " ");
+            for() {
+            	if() {
+            	}
+            }
         }
         System.out.println();
+        printAmount(int[] arr);
     }
 }
