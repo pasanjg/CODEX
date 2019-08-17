@@ -36,5 +36,11 @@ public class MeasureComplexity {
         return sizeComplexity.calculateTotalSizeComplexity();
     }
 
+    @GetMapping("/inheritance/{fileName}")
+    public String  calculateInheritance(@PathVariable String fileName){
+        Measure measure = new Measure(fileName);
+        return measure.getCodeInheritance();
+    }
+
 }
 

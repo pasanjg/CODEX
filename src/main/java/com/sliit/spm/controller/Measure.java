@@ -7,6 +7,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Measure {
 
@@ -16,7 +18,9 @@ public class Measure {
     private final static int BRACKET_CLOSE = 41;
     private final static int SLASH= 47;
     private final static int STAR= 42;
-    
+    private final static Logger LOGGER =
+            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     HashMap<Integer, Integer> range = new HashMap<Integer, Integer>();
 	LinkedList<String> list = new LinkedList<String>();
 
@@ -36,43 +40,45 @@ public class Measure {
     private boolean isSingleLineComment;
     private int prevChar;
     private int currentChar;
-	int cnc = 0;
-	int cr = 0;
-	File file;
-	int n_count = 0;
-	int b_count = 0;
-	int arrCount = 0;
-	boolean status = false;
-	boolean _if = false;
-	boolean _for = false;
-	boolean _while = false;
-	boolean inMethod = false;
-	boolean preLine = false;
-	boolean isFirst = false;
-	String val;
-    String _methodName = "";
-    String methodName = "";
-    String r_word = "";
-    int startLine = 0;
-    int endLine = 0;
-    int startNo = 0;
-    int endNo = 0;
-    int arrIndex = 0;
-    int currentStartLine = 0;
-    int currentEndLine = 0;
-    boolean isRec = false;
-    int bracketCount = 0;
-    int _startLineArray[] = new int[100];
-    int _endLineArray[] = new int[100];
-    int startLineArray[];
-    int endLineArray[];
-    int lineNo = 1;
+    private JSONArray inheritanceObjArr;
+    private JSONObject inheritanceObj;
+//	int cnc = 0;
+//	int cr = 0;
+//	File file;
+//	int n_count = 0;
+//	int b_count = 0;
+//	int arrCount = 0;
+//	boolean status = false;
+//	boolean _if = false;
+//	boolean _for = false;
+//	boolean _while = false;
+//	boolean inMethod = false;
+//	boolean preLine = false;
+//	boolean isFirst = false;
+//	String val;
+//    String _methodName = "";
+//    String methodName = "";
+//    String r_word = "";
+//    int startLine = 0;
+//    int endLine = 0;
+//    int startNo = 0;
+//    int endNo = 0;
+//    int arrIndex = 0;
+//    int currentStartLine = 0;
+//    int currentEndLine = 0;
+//    boolean isRec = false;
+//    int bracketCount = 0;
+//    int _startLineArray[] = new int[100];
+//    int _endLineArray[] = new int[100];
+//    int startLineArray[];
+//    int endLineArray[];
+//    int lineNo = 1;
 
     public Measure(String path) {
         this.path = path;
         ctc = 0;
         count = 0;
-        r_word = "";
+//        r_word = "";
         isMultiLineComment = false;
         isSingleLineComment = false;
         detectedKeyword = "";
@@ -81,12 +87,14 @@ public class Measure {
         tempJSON = new JSONObject();
         tokenArray = new JSONArray();
         tempArr = new JSONArray();
+        inheritanceObj = new JSONObject();
+        inheritanceObjArr = new JSONArray();
     }
 
     public void detectConditionalControlStructure(){
-        if (r_word.startsWith("if(") || r_word.startsWith("if (")){
+        if (word.startsWith("if(") || word.startsWith("if (")){
             ctc++;
-            r_word = "";
+            word = "";
             detectedKeyword = "if";
             tokenArray.put("if");
         }
@@ -96,25 +104,25 @@ public class Measure {
         if(currentChar==BRACKET_CLOSE){
             prevDetectedKeyword = detectedKeyword;
             detectedKeyword = "";
-            r_word="";
+            word="";
         }
     }
     public void detectLogicalOperator(int increment){
         if (currentChar == LOGICAL_AND) {
             if (prevChar != LOGICAL_AND) {
-                r_word = "";
+                word = "";
                 ctc += increment;
                 tokenArray.put("AND");
             } else {
-                r_word = "";
+                word = "";
             }
         }else if (currentChar == LOGICAL_OR) {
             if (prevChar != LOGICAL_OR) {
-                r_word = "";
+                word = "";
                 ctc+=increment;
                 tokenArray.put("OR");
             } else {
-                r_word = "";
+                word = "";
             }
         }
     }
@@ -123,28 +131,28 @@ public class Measure {
         /*
         detect for loop
          */
-        if(r_word.startsWith("for(") || r_word.startsWith("for (")){
+        if(word.startsWith("for(") || word.startsWith("for (")){
             ctc += 2;
-            r_word = "";
+            word = "";
             detectedKeyword = "for";
             tokenArray.put("for");
         }
-        if(r_word.startsWith("do{") || r_word.startsWith("do {")){
+        if(word.startsWith("do{") || word.startsWith("do {")){
             ctc += 2;
-            r_word = "";
+            word = "";
             detectedKeyword = "do";
             tokenArray.put("do-while");
         }
         /*
         detect while loop
          */
-        if(r_word.startsWith("while (") || r_word.startsWith("while(")){
+        if(word.startsWith("while (") || word.startsWith("while(")){
             if(!detectedKeyword.contains("do") && !prevDetectedKeyword.contains("do")){
                 detectedKeyword = "while";
-                r_word = "";
+                word = "";
             }else{
                 ctc += 2;
-                r_word = "";
+                word = "";
                 detectedKeyword = "while";
                 tokenArray.put("while");
             }
@@ -152,29 +160,29 @@ public class Measure {
     }
 
     public void detectCatchStatement(){
-        if(r_word.contains("catch")){
+        if(word.contains("catch")){
             ctc += 1;
-            r_word = "";
+            word = "";
             detectedKeyword = "catch";
             tokenArray.put("catch");
         }
     }
 
     public void detectSwitch(){
-        if(r_word.contains("switch")){
+        if(word.contains("switch")){
             detectedKeyword="switch";
-            r_word = "";
+            word = "";
         }
     }
 
     public void detectCase(){
-        if(prevDetectedKeyword.equals("switch") && r_word.startsWith("case")) {
-            r_word = "";
+        if(prevDetectedKeyword.equals("switch") && word.startsWith("case")) {
+            word = "";
             ctc++;
             tokenArray.put("case");
         }
-        if(prevDetectedKeyword.equals("switch") && r_word.startsWith("default")) {
-            r_word = "";
+        if(prevDetectedKeyword.equals("switch") && word.startsWith("default")) {
+            word = "";
             prevDetectedKeyword="";
         }
     }
@@ -190,165 +198,165 @@ public class Measure {
             isSingleLineComment = true;
         }
     }
-    
-    public boolean canSkip(String currentLine, String[] skipKey) {
-		for (int i = 0; i < skipKey.length; i++) {
-			if (currentLine.startsWith(skipKey[i])) {
-				this.lineNo++;
-				return true;
-			}
-		}
 
-		return false;
-	}
-    
-    public int countCncValue(String currentLine, String[] keys) {
-		
-		currentLine = currentLine.trim();
+//    public boolean canSkip(String currentLine, String[] skipKey) {
+//		for (int i = 0; i < skipKey.length; i++) {
+//			if (currentLine.startsWith(skipKey[i])) {
+//				this.lineNo++;
+//				return true;
+//			}
+//		}
+//
+//		return false;
+//	}
 
-		if(status) {
-			if(currentLine.startsWith("}")) {
-				n_count--;
-				if(n_count==0) {
-					status = false;
-					val = null;
-					list.pop();
-					val = list.peek();
-				}
-			}
-		}
+//    public int countCncValue(String currentLine, String[] keys) {
+//
+//		currentLine = currentLine.trim();
+//
+//		if(status) {
+//			if(currentLine.startsWith("}")) {
+//				n_count--;
+//				if(n_count==0) {
+//					status = false;
+//					val = null;
+//					list.pop();
+//					val = list.peek();
+//				}
+//			}
+//		}
+//
+//		for (int i = 0; i < keys.length; i++) {
+//			if(currentLine.startsWith(keys[i])) {
+//				if(val == null) {
+//					val = keys[i];
+//					list.add(keys[i]);
+//				}
+//				if(val != keys[i]) {
+//					val = keys[i];
+//					list.add(keys[i]);
+//					//count = 0;
+//				}
+//				if(val == keys[i]) {
+//					status = true;
+//					n_count++;
+//
+//				}
+//				val = keys[i];
+//			}
+//		}
+//
+//		if(currentLine.equals("{") || currentLine.equals("}")) {
+//			return 0;
+//		} else {
+//			return n_count;
+//		}
+//	}
 
-		for (int i = 0; i < keys.length; i++) {
-			if(currentLine.startsWith(keys[i])) {
-				if(val == null) {
-					val = keys[i];
-					list.add(keys[i]);
-				}
-				if(val != keys[i]) {
-					val = keys[i];
-					list.add(keys[i]);
-					//count = 0;
-				}
-				if(val == keys[i]) {
-					status = true;
-					n_count++;
-					
-				}
-				val = keys[i];
-			}
-		}
-		
-		if(currentLine.equals("{") || currentLine.equals("}")) {
-			return 0;
-		} else {
-			return n_count; 
-		}
-	}
-    
-    public int trackRec(String currentLine, String[] keys) {
-		int temp = 0;
-		int count = 0;
-		int c_count = 0;
-		
-		currentLine = currentLine.trim();
-		String[] lineWords = currentLine.split(" ");
-		char[] charLine = currentLine.toCharArray();
-		
-		if(lineWords.length >= 3) {
-			String keyword = lineWords[1].trim(); 
-			if(currentLine != null || currentLine != "" ) {
-				if(!lineWords[0].equals("class") || !lineWords[1].equals("class")) {
-					if(keyword.equals("static") || keyword.equals("void") || keyword.equals("String") || keyword.equals("int") || keyword.equals("double") || keyword.equals("float") || keyword.equals("long")) {
-			        	if(keyword.equals("static")) {
-			        		if(!lineWords[3].equals("main(String[]") || !lineWords[3].equals("main(String")) {
-			        			inMethod = true;
-			        			preLine = true;
-			        			isFirst = true;
-			        			word = lineWords[3];
-		            			startLine = lineNo;
-		            			endLine = lineNo;
-		            			b_count++;
-		            			temp = b_count;
-		            			System.out.println(word);
-			        		}		
-			        	} else {
-			        		inMethod = true;
-			        		preLine = true;
-			        		isFirst = true;
-			        		word = lineWords[2];
-		            		startLine = lineNo;
-		            		endLine = lineNo;
-		            		b_count++;
-		            		temp = b_count;
-		            		System.out.println(word);
-			        	} 
-			        }	
-				}
-			}
-		} 
-		if(temp == 1) {
-			temp++;
-		} else {
-			if(inMethod) {
-				if(preLine) {
-					preLine = false;
-				} else {
-					if(currentLine.equals("{") || currentLine.endsWith("{")) {
-						b_count++;
-					}
-					if(currentLine.equals("}")) {
-						b_count--;
-					}
-				}
-			}
-		}
-		if(b_count == 0) {
-			endLine = lineNo-1; 
-			inMethod = false;
-			if(isRec) {
-				_startLineArray[arrCount] = startLine;
-				_endLineArray[arrCount] = endLine;
-				arrCount++;
-				isRec = false;
-			}
-		}
-		
-		char[] charLineArr = word.toCharArray();
-        if(isFirst) {
-        	boolean status = true;
-        	for( int ch: charLineArr) {
-	        	if(status) {
-	        		if(ch == 40) {
-	            		status = false;
-	            	} else {
-	            		c_count++;
-	            	}
-	        	}
-	        }
-	        
-	        for(int x=0; x<c_count;x++) {
-	        	_methodName = _methodName+charLineArr[x];
-	        }
-	        methodName = _methodName;
-	        _methodName = "";
-	        System.out.println(methodName);
-	        isFirst = false;
-        }
-        
-        if(!(lineNo == startLine)) {
-        	if(b_count > 0) {
-        		if(!isFirst) {
-	        		for(int x=0; x <lineWords.length; x++) {
-		            	if(lineWords[x].startsWith(methodName)) {
-		            		isRec = true;
-		            		System.out.println(currentLine+"---->inside the core");
-		            	}
-		            }
-	        	}
-        	} 
-        }
-		return b_count;
-	}
+//    public int trackRec(String currentLine, String[] keys) {
+//		int temp = 0;
+//		int count = 0;
+//		int c_count = 0;
+//
+//		currentLine = currentLine.trim();
+//		String[] lineWords = currentLine.split(" ");
+//		char[] charLine = currentLine.toCharArray();
+//
+//		if(lineWords.length >= 3) {
+//			String keyword = lineWords[1].trim();
+//			if(currentLine != null || currentLine != "" ) {
+//				if(!lineWords[0].equals("class") || !lineWords[1].equals("class")) {
+//					if(keyword.equals("static") || keyword.equals("void") || keyword.equals("String") || keyword.equals("int") || keyword.equals("double") || keyword.equals("float") || keyword.equals("long")) {
+//			        	if(keyword.equals("static")) {
+//			        		if(!lineWords[3].equals("main(String[]") || !lineWords[3].equals("main(String")) {
+//			        			inMethod = true;
+//			        			preLine = true;
+//			        			isFirst = true;
+//			        			word = lineWords[3];
+//		            			startLine = lineNo;
+//		            			endLine = lineNo;
+//		            			b_count++;
+//		            			temp = b_count;
+//		            			System.out.println(word);
+//			        		}
+//			        	} else {
+//			        		inMethod = true;
+//			        		preLine = true;
+//			        		isFirst = true;
+//			        		word = lineWords[2];
+//		            		startLine = lineNo;
+//		            		endLine = lineNo;
+//		            		b_count++;
+//		            		temp = b_count;
+//		            		System.out.println(word);
+//			        	}
+//			        }
+//				}
+//			}
+//		}
+//		if(temp == 1) {
+//			temp++;
+//		} else {
+//			if(inMethod) {
+//				if(preLine) {
+//					preLine = false;
+//				} else {
+//					if(currentLine.equals("{") || currentLine.endsWith("{")) {
+//						b_count++;
+//					}
+//					if(currentLine.equals("}")) {
+//						b_count--;
+//					}
+//				}
+//			}
+//		}
+//		if(b_count == 0) {
+//			endLine = lineNo-1;
+//			inMethod = false;
+//			if(isRec) {
+//				_startLineArray[arrCount] = startLine;
+//				_endLineArray[arrCount] = endLine;
+//				arrCount++;
+//				isRec = false;
+//			}
+//		}
+//
+//		char[] charLineArr = word.toCharArray();
+//        if(isFirst) {
+//        	boolean status = true;
+//        	for( int ch: charLineArr) {
+//	        	if(status) {
+//	        		if(ch == 40) {
+//	            		status = false;
+//	            	} else {
+//	            		c_count++;
+//	            	}
+//	        	}
+//	        }
+//
+//	        for(int x=0; x<c_count;x++) {
+//	        	_methodName = _methodName+charLineArr[x];
+//	        }
+//	        methodName = _methodName;
+//	        _methodName = "";
+//	        System.out.println(methodName);
+//	        isFirst = false;
+//        }
+//
+//        if(!(lineNo == startLine)) {
+//        	if(b_count > 0) {
+//        		if(!isFirst) {
+//	        		for(int x=0; x <lineWords.length; x++) {
+//		            	if(lineWords[x].startsWith(methodName)) {
+//		            		isRec = true;
+//		            		System.out.println(currentLine+"---->inside the core");
+//		            	}
+//		            }
+//	        	}
+//        	}
+//        }
+//		return b_count;
+//	}
     public void mesaureCtC() {
         try{
             bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.path));
@@ -359,7 +367,7 @@ public class Measure {
                 isSingleLineComment = false;
                 count++;
                 currentLine = currentLine.trim();
-                r_word = "";
+                word = "";
                 temp = currentLine.toCharArray();
                 tempJSON = new JSONObject();
                 tokenArray = new JSONArray();
@@ -372,10 +380,10 @@ public class Measure {
                         prevChar = currentChar;
                         continue;
                     }
-                    if((ch == SPACE) || (prevChar==STAR && currentChar == SLASH)) {
-                        r_word = "";
+                    if((prevChar==STAR && currentChar == SLASH)) {
+                        word = "";
                     }else{
-                        r_word = r_word.concat(Character.toString((char) ch));
+                        word = word.concat(Character.toString((char) ch));
                         detectBracketClose();
                         detectConditionalControlStructure();
                         if(detectedKeyword.equals("if")){
@@ -400,15 +408,151 @@ public class Measure {
                 tempArr.put(tempJSON);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.INFO, e.getMessage());
         }
     }
 
+    public String getCodeInheritance() {
 
-    public void measureCode(){
+        BufferedReader reader;
+        int ci = 0;
+        int totalCi = 0;
+        String comment = " ";
 
+        try {
+            reader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.path));
+
+            String line = reader.readLine();
+
+            int count = 1;
+            inheritanceObj = new JSONObject();
+
+            while (line != null) {
+
+                if (this.path.contains(".java")) {
+                    line = reader.readLine();
+
+                    if (line == null) {
+                        break;
+                    }
+
+                    comment = "comment";
+                    if (line.contains("//")) {
+                        System.out.println(line.charAt(0));
+                        comment = line.substring(0, line.indexOf("//"));
+                    }
+
+                    inheritanceObj.put("line", line);
+
+                    if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+                        if (line.contains(" class ")) {
+                            ci = 0;
+                        }
+                        totalCi += ci;
+                        inheritanceObj.put("Ci", ci);
+                        System.out.println(totalCi);
+                    }
+                    inheritanceObj.put("number", count);
+                    inheritanceObjArr.put(inheritanceObj);
+                    inheritanceObj = new JSONObject();
+
+                    if (line != null) {
+                        if (containsIgnoreCase(line, " class ")) {
+                            ci = 2;
+                        }
+
+                        if (containsIgnoreCase(line, " extends ")) {
+                            ci = 3;
+                        }
+
+                        if (containsIgnoreCase(line, " implements ")) {
+                            int ciCount = 3;
+
+                            for (int i = 0; i < line.length(); i++) {
+                                if (line.charAt(i) == ',') {
+                                    ciCount++;
+                                }
+                            }
+
+                            ci = ciCount;
+                        }
+
+                    }
+
+//                    count++;
+
+                } else if (this.path.contains(".cpp")) {
+                    line = reader.readLine();
+
+                    if (line == null) {
+                        break;
+                    }
+
+                    if(containsIgnoreCase(line, " main()")) {
+                        ci = 0;
+                    }
+
+                    comment = "comment";
+
+                    if (line.contains("//")) {
+                        System.out.println(line.charAt(0));
+                        comment = line.substring(0, line.indexOf("//"));
+                    }
+
+                    inheritanceObj.put("line", line);
+
+                    if(!comment.matches(".*[a-zA-Z].*")) {
+                        ci = 0;
+                    }
+
+
+                    if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+                        if (containsIgnoreCase(line, "class ") ) {
+                            ci = 0;
+                        }
+                        totalCi += ci;
+                        inheritanceObj.put("Ci", ci);
+                        System.out.println(totalCi);
+                    }
+
+                    inheritanceObj.put("number", count);
+                    inheritanceObjArr.put(inheritanceObj);
+                    inheritanceObj = new JSONObject();
+
+                    if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
+
+                        if (containsIgnoreCase(line, "class ")) {
+                            int ciCount = 2;
+
+                            for (int i = 0; i < line.length(); i++) {
+                                if (line.charAt(i) == ':') {
+                                    ciCount++;
+                                }
+                            }
+
+                            ci = ciCount;
+                        }
+
+                    }
+
+                }
+
+                count++;
+
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            LOGGER.log(Level.INFO, e.getMessage());
+        }
+        inheritanceObj.put("totalCi", totalCi);
+        inheritanceObjArr.put(inheritanceObj);
+        return inheritanceObjArr.toString();
     }
 
+    public static boolean containsIgnoreCase(String str, String subString) {
+        return str.toLowerCase().contains(subString.toLowerCase());
+    }
 
 
 
@@ -429,7 +573,7 @@ public class Measure {
 //	Scanner recScanner = new Scanner(this.getFile());
 //	Scanner scanner = new Scanner(this.getFile());
 //    tempArr = new JSONArray();
-//    
+//
 //    while (recScanner.hasNext()) {
 //
 //		String currentLine = recScanner.nextLine().trim();
@@ -440,15 +584,15 @@ public class Measure {
 //		if (canSkip(currentLine, skipKeys)) {
 //			continue;
 //		}
-//		
+//
 //		String[] words = currentLine.split(" ");
 //		String[] keys = {"if", "for", "while", "else if","} else if", "}else if", "do"};
 //		System.out.println(currentLine+"---->"+trackRec(currentLine, keys));
-//		
+//
 //		this.lineNo++;
 //
 //	}
-//    
+//
 //    this.lineNo = 1;
 //    if(arrCount != 0) {
 //    	startLineArray = new int[arrCount];
@@ -479,7 +623,7 @@ public class Measure {
 //			endNo = endLineArray[arrIndex];
 //			if((startNo <= lineNo) && (endNo >= lineNo)) {
 //				this.cr = this.cnc * 2;
-//				
+//
 //				if(endNo == lineNo) {
 //					if(!(arrIndex == arrCount-1)) {
 //						arrIndex++;
@@ -501,5 +645,5 @@ public class Measure {
 //    json.put("code",tempArr);
 //    return json.toString();
 //
-//	
+//
 //}
