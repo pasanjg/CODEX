@@ -81,7 +81,13 @@ public class Measure {
     private int ci = 0;
     private int totalCi = 0;
     private String comment = " ";
-
+    private int TW = 0;
+    private int _ci = 0;
+    private int cps = 0;
+    private int cs = 0;
+    private int cp = 0;
+    
+    
     public Measure(String path) {
         this.path = path;
         ctc = 0;
@@ -266,12 +272,11 @@ public class Measure {
 
     public int trackRec(String currentLine, String[] keys) {
 		int temp = 0;
-		int count = 0;
+		//int count = 0;
 		int c_count = 0;
 
 		currentLine = currentLine.trim();
 		String[] lineWords = currentLine.split(" ");
-		char[] charLine = currentLine.toCharArray();
 
 		if(lineWords.length >= 3) {
 			String keyword = lineWords[1].trim();
@@ -331,7 +336,7 @@ public class Measure {
 				isRec = false;
 			}
 		}
-
+		
 		char[] charLineArr = r_word.toCharArray();
         if(isFirst) {
         	boolean status = true;
@@ -353,7 +358,7 @@ public class Measure {
 	        System.out.println(methodName);
 	        isFirst = false;
         }
-
+        
         if(!(lineNo == startLine)) {
         	if(b_count > 0) {
         		if(!isFirst) {
@@ -376,7 +381,8 @@ public class Measure {
             File file = new File(System.getProperty("user.dir")+ "/temp/" + this.path);
             String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
             String line = bufferedReader.readLine();
-
+            lineNo = 1;
+            
             while ((currentLine= bufferedReader_rec.readLine()) != null)
             {
                 currentLine = currentLine.trim();
@@ -391,6 +397,7 @@ public class Measure {
 				lineNo++;
             }
             System.out.println("arr count---------------------"+arrCount);
+            lineNo = 1;
             if(arrCount != 0) {
 		    	startLineArray = new int[arrCount];
 		        endLineArray = new int[arrCount];
@@ -403,21 +410,17 @@ public class Measure {
 		    }
             
             char[] temp;
-            lineNo = 1;
+            
             while ((currentLine= bufferedReader.readLine()) != null)
             {
-            	//lanka
                 if (this.path.contains(".java")) {
-                	System.out.println("test#############################");
                     line = currentLine;
-                    System.out.println(line);
                     if (line == null) {
                         break;
                     }
 
                     comment = "comment";
                     if (line.contains("//")) {
-                        System.out.println(line.charAt(0));
                         comment = line.substring(0, line.indexOf("//"));
                     }
 
@@ -428,8 +431,8 @@ public class Measure {
                             ci = 0;
                         }
                         totalCi += ci;
+                        _ci = ci;
                         tempJSON.put("ci",ci);
-                        System.out.println("Shalika------------"+totalCi);
                     }
 //                    inheritanceObj.put("number", count);
 //                    inheritanceObjArr.put(inheritanceObj);
@@ -438,7 +441,6 @@ public class Measure {
 //                    if (line != null) {
                         if (containsIgnoreCase(line, " class ")) {
                             ci = 1;
-                            System.out.println("test---------------------------------------------------");
                         }
 
                         if (containsIgnoreCase(line, " extends ")) {
@@ -475,7 +477,6 @@ public class Measure {
                     comment = "comment";
 
                     if (line.contains("//")) {
-                        System.out.println(line.charAt(0));
                         comment = line.substring(0, line.indexOf("//"));
                     }
 
@@ -491,8 +492,8 @@ public class Measure {
                             ci = 0;
                         }
                         totalCi += ci;
+                        _ci = ci;
                         tempJSON.put("ci",ci);
-                        System.out.println(totalCi);
                     }
 
 //                    inheritanceObj.put("number", count);
@@ -587,12 +588,16 @@ public class Measure {
                 String[] keys = {"if", "for", "while", "else if","} else if", "}else if", "do"};
 				cnc = countCncValue(currentLine, keys);
 				
+				cs = sizeComplexity.getComplexity()-totalCs;
+				TW = ctc + cnc + _ci;
+				cps = cs * TW;
+				
 				if(arrCount != 0) {
 					startNo = startLineArray[arrIndex];
 					endNo = endLineArray[arrIndex];
 					if((startNo <= lineNo) && (endNo >= lineNo)) {
-						cr = this.cnc * 2;
-						
+						cr = cps * 2;
+						cp = cp + cr;
 						if(endNo == lineNo) {
 							if(!(arrIndex == arrCount-1)) {
 								arrIndex++;
@@ -602,14 +607,20 @@ public class Measure {
 						cr = 0;
 					}
 				}
+				if(cr == 0) {
+					cp = cp + cps;
+				}
+				
                 tempJSON.put("no",count);
                 tempJSON.put("line",currentLine);
                 tempJSON.put("cscTokens",sizeComplexity.getTempToken());
                 tempJSON.put("tokens",tokenArray);
                 tempJSON.put("cr",cr);
-                tempJSON.put("cnc value", cnc);
+                tempJSON.put("cnc", cnc);
                 tempJSON.put("ctc",ctc);
-                tempJSON.put("cs",sizeComplexity.getComplexity()-totalCs);
+                tempJSON.put("TW",TW);
+                tempJSON.put("cs",cs);
+                tempJSON.put("cps",cps);
                 tempArr.put(tempJSON);
                 totalCs = sizeComplexity.getComplexity();
                 ctc = 0;
@@ -772,6 +783,7 @@ public class Measure {
         json.put("code",tempArr);
         json.put("totalCtc",getTotalCtc());
         json.put("totalCi", totalCi);
+        json.put("totalCp", cp);
         json.put("totalCs",sizeComplexity.getComplexity());
         return json.toString();
     }

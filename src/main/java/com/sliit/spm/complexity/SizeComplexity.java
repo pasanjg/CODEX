@@ -225,7 +225,7 @@ public class SizeComplexity {
 				if (words[i].contains(keys[j])) {
 					count++;
 					this.tokenArray.put(keys[j]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
 		}
@@ -244,13 +244,13 @@ public class SizeComplexity {
 				if (words[i].equals(keys[j])) {
 					count++;
 					this.tokenArray.put(keys[j]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 				} else {
 					if (words[i].contains(keys[j])) {
 						String[] tempWord = words[i].split(Pattern.quote(keys[j]));
 						count += (tempWord.length - 1);
 						this.tokenArray.put(keys[j]);
-						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
+						//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				}
 			}
@@ -272,13 +272,13 @@ public class SizeComplexity {
 						this.detectedWord = words[i];
 						count++;
 						this.tokenArray.put(keys[j]);
-						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
+						//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 					else if (isValidKey(regex, words[i + 1])) {
 						this.detectedWord = words[i];
 						count++;
 						this.tokenArray.put(keys[j]);
-						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
+						//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				} else {
 					if (words[i].contains(keys[j])) {
@@ -286,7 +286,7 @@ public class SizeComplexity {
 						this.detectedWord = words[i];
 						count += (tempWord.length - 1);
 						this.tokenArray.put(keys[j]);
-						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
+						//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				}
 			}
@@ -304,7 +304,7 @@ public class SizeComplexity {
 		while (m.find()) {
 			count++;
 			this.tokenArray.put(m.group(1));
-			System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + m.group(1) +"] count: " + count + "[Cs: " + this.cs + "]");
+			//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + m.group(1) +"] count: " + count + "[Cs: " + this.cs + "]");
 		}
 		
 		return count;
@@ -321,7 +321,7 @@ public class SizeComplexity {
 				if (words[i].equals("class")) {
 					count++;
 					this.tokenArray.put(words[i + 1]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
 		}
@@ -340,7 +340,7 @@ public class SizeComplexity {
 				if (Pattern.matches("[a-zA-Z0-9_]*\\s[a-zA-Z0-9_]*\\(", words[i] + " " + words[i + 1])) {
 					count++;
 					this.tokenArray.put(words[i + 1]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
 		}
@@ -359,7 +359,7 @@ public class SizeComplexity {
 				if (Pattern.matches("\\=\\s(new)\\s[a-zA-Z0-9_]*\\(", words[i] + " " + words[i + 1] + " " + words[i + 2])) {
 					count++;
 					this.tokenArray.put(words[i + 1]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i - 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i - 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
 		}
@@ -378,7 +378,7 @@ public class SizeComplexity {
 				if (Pattern.matches("(int|String|float|double)\\s[a-zA-Z0-9_]*", words[i] + " " + words[i + 1])) {
 					count++;
 					this.tokenArray.put(words[i + 1]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
 		}
@@ -397,7 +397,7 @@ public class SizeComplexity {
 				if (Pattern.matches("[a-zA-Z0-9_]*\\[]\\s[a-zA-Z0-9_]*", words[i] + " " + words[i + 1])) {
 					count++;
 					this.tokenArray.put(words[i + 1]);
-					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
+					//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
 		}
@@ -415,7 +415,7 @@ public class SizeComplexity {
 			if (Pattern.matches("^[0-9]+", words[i])) {
 				count++;
 				this.tokenArray.put(words[i]);
-				System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i] + "] count: " + count + "[Cs: " + this.cs + "]");
+				//System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i] + "] count: " + count + "[Cs: " + this.cs + "]");
 			}
 		}
 		
