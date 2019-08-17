@@ -28,6 +28,7 @@ public class SizeComplexity {
 	public SizeComplexity(File file) {
 		this.file = file;
 		this.tempArray = new JSONArray();
+		this.tokenArray = new JSONArray();
 	}
 
 	public void setFile(File file) {
@@ -43,6 +44,9 @@ public class SizeComplexity {
 		json.put("code",tempArray);
 		json.put("cs",this.cs);
 		return json.toString();
+	}
+	public int getComplexity(){
+		return this.cs;
 	}
 
 	public String getReadLine() {
@@ -90,7 +94,7 @@ public class SizeComplexity {
 			this.sizeOfKeywords(currentLine);
 			this.sizeOfManipulators(currentLine);
 			this.sizeOfQuotes(currentLine);
-			this.sizeOfClasses(currentLine);
+			this.sizeOfClasses(currentLine);https://github.com/pasanjg/spm-codex-spring.git
 			this.sizeOfMethods(currentLine);
 			this.sizeOfObjects(currentLine);
 			this.sizeOfVariables(currentLine);
@@ -108,6 +112,12 @@ public class SizeComplexity {
 		}
 
 		return this.getSizeComplexity();
+	}
+
+	public JSONArray getTempToken(){
+		JSONArray array = this.tokenArray;
+		this.tokenArray = new JSONArray();
+		return array;
 	}
 
 	public void sizeOfRefAndDeref(String currentLine) {

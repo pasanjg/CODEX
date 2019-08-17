@@ -1,5 +1,6 @@
 package com.sliit.spm.controller;
 
+import com.sliit.spm.complexity.SizeComplexity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,6 +33,7 @@ public class Measure {
     private String prevDetectedKeyword;
     private int ctc;
     private int totalCtc;
+    private int totalCs;
     private int count;
     private JSONObject json;
     private JSONObject tempJSON;
@@ -43,6 +45,7 @@ public class Measure {
     private int currentChar;
     private JSONArray inheritanceObjArr;
     private JSONObject inheritanceObj;
+    private SizeComplexity sizeComplexity;
 //	int cnc = 0;
 //	int cr = 0;
 //	File file;
@@ -79,6 +82,7 @@ public class Measure {
         this.path = path;
         ctc = 0;
         totalCtc = 0;
+        totalCs = 0;
         count = 0;
 //        r_word = "";
         isMultiLineComment = false;
@@ -91,6 +95,7 @@ public class Measure {
         tempArr = new JSONArray();
         inheritanceObj = new JSONObject();
         inheritanceObjArr = new JSONArray();
+        sizeComplexity = new SizeComplexity(new File(System.getProperty("user.dir") + "/temp/" + this.path));
     }
 
     public void detectConditionalControlStructure(){
@@ -361,7 +366,10 @@ public class Measure {
 //	}
     public void mesaureCtC() {
         try{
+
             bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.path));
+            File file = new File(System.getProperty("user.dir")+ "/temp/" + this.path);
+            String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
 
             char[] temp;
             while ((currentLine= bufferedReader.readLine()) != null)
@@ -374,6 +382,7 @@ public class Measure {
                 tempJSON = new JSONObject();
                 tokenArray = new JSONArray();
 
+                //measure ctc value
                 for (int ch: temp) {
                     currentChar = ch;
                     commentsDetector();
@@ -403,12 +412,41 @@ public class Measure {
                     }
                     prevChar = ch;
                 }
+
+                String[] skipKeys = { "/", "*" };
+                if (sizeComplexity.canSkip(currentLine, skipKeys)) {
+                    continue;
+                }
+
+                if (fileExt.equals(".cpp")) {
+                    sizeComplexity.sizeOfRefAndDeref(currentLine);
+                }
+
+                sizeComplexity.weightTwoKeywords(currentLine);
+                sizeComplexity.sizeOfArithmeticOperators(currentLine);
+                sizeComplexity.sizeOfRelationOperators(currentLine);
+                sizeComplexity.sizeOfLogicalOperators(currentLine);
+                sizeComplexity.sizeOfBitwiseOperators(currentLine);
+                sizeComplexity.sizeOfMiscellaneousOperators(currentLine);
+                sizeComplexity.sizeOfAssignmentOperators(currentLine);
+                sizeComplexity.sizeOfKeywords(currentLine);
+                sizeComplexity.sizeOfManipulators(currentLine);
+                sizeComplexity.sizeOfQuotes(currentLine);
+                sizeComplexity.sizeOfClasses(currentLine);
+                sizeComplexity.sizeOfMethods(currentLine);
+                sizeComplexity.sizeOfObjects(currentLine);
+                sizeComplexity.sizeOfVariables(currentLine);
+                sizeComplexity.sizeOfArrays(currentLine);
+
                 totalCtc += ctc;
                 tempJSON.put("no",count);
                 tempJSON.put("line",currentLine);
-                tempJSON.put("token",tokenArray);
+                tempJSON.put("cscTokens",sizeComplexity.getTempToken());
+                tempJSON.put("tokens",tokenArray);
                 tempJSON.put("ctc",ctc);
+                tempJSON.put("cs",sizeComplexity.getComplexity()-totalCs);
                 tempArr.put(tempJSON);
+                totalCs = sizeComplexity.getComplexity();
                 ctc = 0;
             }
         } catch (IOException e) {
@@ -567,6 +605,7 @@ public class Measure {
         json = new JSONObject();
         json.put("code",tempArr);
         json.put("totalCtc",getTotalCtc());
+        json.put("totalCs",sizeComplexity.getComplexity());
         return json.toString();
     }
 }
