@@ -549,9 +549,14 @@ public class Measure {
         } catch (IOException e) {
             LOGGER.log(Level.INFO, e.getMessage());
         }
-        inheritanceObj.put("totalCi", totalCi);
-        inheritanceObjArr.put(inheritanceObj);
-        return inheritanceObjArr.toString();
+//        inheritanceObj.put("totalCi", totalCi);
+//        inheritanceObjArr.put(inheritanceObj);
+        
+        json = new JSONObject();
+        json.put("code",inheritanceObjArr);
+        json.put("totalCi",totalCi);
+        return json.toString();
+//        return inheritanceObjArr.toString();
     }
 
     public static boolean containsIgnoreCase(String str, String subString) {
