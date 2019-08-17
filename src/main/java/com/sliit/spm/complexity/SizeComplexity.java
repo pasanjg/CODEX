@@ -2,7 +2,6 @@ package com.sliit.spm.complexity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,13 +20,14 @@ public class SizeComplexity {
 
 	private JSONObject json;
     private JSONObject tempJSON;
+    private JSONArray tempArray;
     private JSONArray tokenArray;
-    private JSONArray tempArr;
 
 	int lineNo = 1;
 
 	public SizeComplexity(File file) {
 		this.file = file;
+		this.tempArray = new JSONArray();
 	}
 
 	public void setFile(File file) {
@@ -38,8 +38,11 @@ public class SizeComplexity {
 		return this.file;
 	}
 
-	public int getSizeComplexity() {
-		return this.cs;
+	public String getSizeComplexity() {
+		JSONObject json = new JSONObject();
+		json.put("code",tempArray);
+		json.put("cs",this.cs);
+		return json.toString();
 	}
 
 	public String getReadLine() {
@@ -50,7 +53,7 @@ public class SizeComplexity {
 		this.readLine = readline;
 	}
 
-	public int calculateTotalSizeComplexity() throws FileNotFoundException {
+	public String calculateTotalSizeComplexity() throws FileNotFoundException {
 
 		Scanner scanner = new Scanner(this.getFile());
 		String fileExt = file.getName().substring(file.getName().lastIndexOf("."));
@@ -64,10 +67,9 @@ public class SizeComplexity {
 			String currentLine = this.readLine.trim();
 			String[] skipKeys = { "/", "*" };
 			
-			this.tempArr = new JSONArray();
+			this.tokenArray = new JSONArray();
 			this.tempJSON = new JSONObject();
-	        this.tokenArray = new JSONArray();
-			
+
 			this.count = 0;
 
 			if (canSkip(currentLine, skipKeys)) {
@@ -95,8 +97,12 @@ public class SizeComplexity {
 			this.sizeOfArrays(currentLine);
 			
 			
-			this.tempJSON.put("tokens", this.tempArr);
-			
+			this.tempJSON.put("tokens", this.tokenArray);
+			this.tempJSON.put("no", this.lineNo);
+			this.tempJSON.put("line", this.readLine);
+
+			this.tempArray.put(this.tempJSON);
+
 			this.lineNo++;
 			
 		}
@@ -208,7 +214,7 @@ public class SizeComplexity {
 			for (int j = 0; j < keys.length; j++) {
 				if (words[i].contains(keys[j])) {
 					count++;
-					this.tempArr.put(keys[j]);
+					this.tokenArray.put(keys[j]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -227,13 +233,13 @@ public class SizeComplexity {
 			for (int j = 0; j < keys.length; j++) {
 				if (words[i].equals(keys[j])) {
 					count++;
-					this.tempArr.put(keys[j]);
+					this.tokenArray.put(keys[j]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 				} else {
 					if (words[i].contains(keys[j])) {
 						String[] tempWord = words[i].split(Pattern.quote(keys[j]));
 						count += (tempWord.length - 1);
-						this.tempArr.put(keys[j]);
+						this.tokenArray.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				}
@@ -255,13 +261,13 @@ public class SizeComplexity {
 					if (isValidKey(regex, words[i - 1])) {
 						this.detectedWord = words[i];
 						count++;
-						this.tempArr.put(keys[j]);
+						this.tokenArray.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 					else if (isValidKey(regex, words[i + 1])) {
 						this.detectedWord = words[i];
 						count++;
-						this.tempArr.put(keys[j]);
+						this.tokenArray.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				} else {
@@ -269,7 +275,7 @@ public class SizeComplexity {
 						String[] tempWord = words[i].split(Pattern.quote(keys[j]));
 						this.detectedWord = words[i];
 						count += (tempWord.length - 1);
-						this.tempArr.put(keys[j]);
+						this.tokenArray.put(keys[j]);
 						System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + keys[j] + "] count: " + count + "[Cs: " + this.cs + "]");
 					}
 				}
@@ -287,7 +293,7 @@ public class SizeComplexity {
 		Matcher m = p.matcher(currentLine);
 		while (m.find()) {
 			count++;
-			this.tempArr.put(m.group(1));
+			this.tokenArray.put(m.group(1));
 			System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + m.group(1) +"] count: " + count + "[Cs: " + this.cs + "]");
 		}
 		
@@ -304,7 +310,7 @@ public class SizeComplexity {
 			if ((i + 1) < words.length) {
 				if (words[i].equals("class")) {
 					count++;
-					this.tempArr.put(words[i + 1]);
+					this.tokenArray.put(words[i + 1]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -323,7 +329,7 @@ public class SizeComplexity {
 			if ((i + 1) < words.length) {
 				if (Pattern.matches("[a-zA-Z0-9_]*\\s[a-zA-Z0-9_]*\\(", words[i] + " " + words[i + 1])) {
 					count++;
-					this.tempArr.put(words[i + 1]);
+					this.tokenArray.put(words[i + 1]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -342,7 +348,7 @@ public class SizeComplexity {
 			if ((i + 2) < words.length) {
 				if (Pattern.matches("\\=\\s(new)\\s[a-zA-Z0-9_]*\\(", words[i] + " " + words[i + 1] + " " + words[i + 2])) {
 					count++;
-					this.tempArr.put(words[i + 1]);
+					this.tokenArray.put(words[i + 1]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i - 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -361,7 +367,7 @@ public class SizeComplexity {
 			if ((i + 1) < words.length) {
 				if (Pattern.matches("(int|String|float|double)\\s[a-zA-Z0-9_]*", words[i] + " " + words[i + 1])) {
 					count++;
-					this.tempArr.put(words[i + 1]);
+					this.tokenArray.put(words[i + 1]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -380,7 +386,7 @@ public class SizeComplexity {
 			if ((i + 1) < words.length) {
 				if (Pattern.matches("[a-zA-Z0-9_]*\\[]\\s[a-zA-Z0-9_]*", words[i] + " " + words[i + 1])) {
 					count++;
-					this.tempArr.put(words[i + 1]);
+					this.tokenArray.put(words[i + 1]);
 					System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i + 1] + "] count: " + count + "[Cs: " + this.cs + "]");
 				}
 			}
@@ -398,7 +404,7 @@ public class SizeComplexity {
 		for (int i = 0; i < words.length; i++) {
 			if (Pattern.matches("^[0-9]+", words[i])) {
 				count++;
-				this.tempArr.put(words[i]);
+				this.tokenArray.put(words[i]);
 				System.out.println(this.lineNo + "| " + this.readLine + "\t\t token: [" + words[i] + "] count: " + count + "[Cs: " + this.cs + "]");
 			}
 		}

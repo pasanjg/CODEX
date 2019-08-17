@@ -404,6 +404,14 @@ public class Measure {
         }
     }
 
+
+    public void measureCode(){
+
+    }
+
+
+
+
     public int getCtc() {
         return ctc;
     }
