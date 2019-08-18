@@ -15,12 +15,19 @@ public class MeasureComplexity {
     @Autowired
     private ApplicationContext ctx;
 
-// 5d4822e8ada9aa1a243d5d80 FibonacciMain
+    // 5d4822e8ada9aa1a243d5d80 FibonacciMain
 // 5d482360ada9aa1a243d5d82 myException file
 // 5d498610ec688a47dce6a2d3 - CoinChange.java
+    @GetMapping("/{fileName}")
+    public String calculate(@PathVariable String fileName) {
+        com.sliit.spm.complexity.Measure measure = new com.sliit.spm.complexity.Measure(fileName);
+        measure.measure();
+        return measure.getComplexity();
+    }
+
 
     @GetMapping("/controlStructure/{fileName}")
-    public String calculateCnC(@PathVariable String fileName){
+    public String calculateCnC(@PathVariable String fileName) {
 
         Measure measure = new Measure(fileName);
         measure.mesaureCtC();
@@ -37,7 +44,7 @@ public class MeasureComplexity {
     }
 
     @GetMapping("/inheritance/{fileName}")
-    public String  calculateInheritance(@PathVariable String fileName){
+    public String calculateInheritance(@PathVariable String fileName) {
         Measure measure = new Measure(fileName);
         return measure.getCodeInheritance();
     }
