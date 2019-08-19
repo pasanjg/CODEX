@@ -92,6 +92,7 @@ public class ControlStructureComplexity {
         if(isSwitch){
             if(Pattern.matches(regex_case,line)){
                 ctc++;
+                tokens.put("case");
             }
         }
     }
