@@ -72,13 +72,24 @@ public class ControlStructureComplexity {
             increment = 2;
         }
         if(isNestedControlStructure | isControlStructure){
-            if(split.contains("&")){
-                ctc += increment;
-                tokens.put("AND");
-            }
-            if(split.contains("|")){
-                ctc += increment;
-                tokens.put("OR");
+            char [] ch = split.toCharArray();
+            int prev = 0;
+            //38 and
+            //124 or
+            for(int c: ch){
+                if(c==38){
+                    if(prev!=38){
+                        ctc += increment;
+                        tokens.put("AND");
+                    }
+                }
+                if(c==124){
+                    if(prev!=124){
+                        ctc += increment;
+                        tokens.put("OR");
+                    }
+                }
+                prev = c;
             }
         }
     }
