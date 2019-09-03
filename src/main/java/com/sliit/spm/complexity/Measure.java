@@ -20,6 +20,7 @@ public class Measure {
     private boolean isMultiLineComment;
 
     private ControlStructureComplexity controlStructureComplexity;
+    private Inheritance inheritance;
     private String fileName;
     private JSONArray tempArray;
     private JSONObject jsonObject;
@@ -37,6 +38,13 @@ public class Measure {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/temp/" + this.fileName));
             String currentLine;
             int count = 0;
+
+            /*
+             * check type
+             * */
+            inheritance.setJava(this.fileName.contains(".java"));
+            inheritance.setCpp(this.fileName.contains(".cpp"));
+
             while ((currentLine= bufferedReader.readLine()) != null){
                 //TODO: skip lines until detect class
                 currentLine = currentLine.trim();

@@ -459,10 +459,6 @@ public class Measure {
                             ci = ciCount;
                         }
 
-                   // }
-
-//                    count++;
-
                 } else if (this.path.contains(".cpp")) {
                     line = bufferedReader.readLine();
 
