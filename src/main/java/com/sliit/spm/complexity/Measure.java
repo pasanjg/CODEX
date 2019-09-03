@@ -30,6 +30,7 @@ public class Measure {
         tempArray = new JSONArray();
         isMultiLineComment =false;
         controlStructureComplexity = new ControlStructureComplexity();
+        inheritance = new Inheritance();
         //TODO:
     }
 
