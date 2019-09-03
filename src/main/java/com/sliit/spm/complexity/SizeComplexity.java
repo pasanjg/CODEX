@@ -94,7 +94,7 @@ public class SizeComplexity {
 			this.sizeOfKeywords(currentLine);
 			this.sizeOfManipulators(currentLine);
 			this.sizeOfQuotes(currentLine);
-			this.sizeOfClasses(currentLine);https://github.com/pasanjg/spm-codex-spring.git
+			this.sizeOfClasses(currentLine);
 			this.sizeOfMethods(currentLine);
 			this.sizeOfObjects(currentLine);
 			this.sizeOfVariables(currentLine);
