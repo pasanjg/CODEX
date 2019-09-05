@@ -116,6 +116,7 @@ public class Measure {
                 jsonObject = new JSONObject();
                 //skip multiline comments
                 if(isMultiLineComment){
+                	lineNo++;
                     jsonObject.put("line",count++);
                     jsonObject.put("ctc",0);
                     jsonObject.put("cnc",0);
@@ -136,6 +137,7 @@ public class Measure {
 
                 //pattern match for comments
                 if(Pattern.matches(regex_comment,currentLine)){
+                	lineNo++;
                     jsonObject.put("line",count++);
                     jsonObject.put("ctc",0);
                     jsonObject.put("cnc", 0);
@@ -186,7 +188,7 @@ public class Measure {
 						}
 					} else {
 						cr = 0;
-						System.out.println("Out rec"+lineNo+" cps:"+cps+" cr:"+cr);
+						//System.out.println("Out rec"+lineNo+" cps:"+cps+" cr:"+cr);
 					}
 				}
 				if(cr == 0) {
