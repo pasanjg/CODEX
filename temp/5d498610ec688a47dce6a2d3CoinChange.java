@@ -11,7 +11,7 @@ public class CoinChange {
         int amount = 12;
         int[] coins = {2, 4, 5};
         print();
-        if() {
+        if(jjj) {
         }
         System.out.println("Number of combinations of getting change for " + amount + " is: " + change(coins, amount));
         System.out.println("Minimum number of coins required for amount :" + amount + " is: " + minimumCoins(coins, amount));
@@ -73,10 +73,11 @@ public class CoinChange {
 
     // A basic print method which prints all the contents of the array
     public static void printAmount(int[] arr) {
+
         for (int i = 0; i < arr.length; i++) {
             System.out.print(arr[i] + " ");
-            for() {
-            	if() {
+            for(gdgd) {
+            	if(gdg) {
             	}
             }
         }
