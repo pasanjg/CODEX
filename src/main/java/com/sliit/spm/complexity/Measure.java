@@ -57,7 +57,6 @@ public class Measure {
     private int startLineArray[];
     private int endLineArray[];
     private int TW = 0;
-    private int _ci = 0;
     private int cps = 0;
     private int cs = 0;
     private int cp = 0;
@@ -148,6 +147,7 @@ public class Measure {
                     jsonObject.put("cps", 0);
                     jsonObject.put("cr", 0);
                     jsonObject.put("cs",1);
+                    jsonObject.put("ci",0);
                     tempArray.put(jsonObject);
                     if(currentLine.contains("/*")){
 //                        jsonObject.put("ctcTokens","multilineStart");
@@ -169,8 +169,10 @@ public class Measure {
                     comment = currentLine.substring(0, currentLine.indexOf("//"));
                 }
 
+                int ci = 0;
                 if (currentLine != null && currentLine.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
-                    jsonObject.put("ci",inheritance.measure(currentLine, this.fileName));
+                    ci = inheritance.measure(currentLine, this.fileName);
+                    jsonObject.put("ci",ci);
                 }
 
                 jsonObject.put("cnc",cnc);
@@ -183,9 +185,8 @@ public class Measure {
                 //cs = sizeComplexity.getComplexity()-totalCs;    cs value calculation
                 cs = 1;
                 ctc = controlStructureComplexity.getCtc();
-                TW = ctc + cnc + _ci;
+                TW = ctc + cnc + ci;
                 cps = cs * TW;
-                cps = 1;
 
                 if(arrCount != 0) {
                     startNo = startLineArray[arrIndex];
