@@ -345,6 +345,7 @@ public class Measure {
         }
         if(temp == 1) {
             temp++;
+	    preLine = false;
         } else {
             if(inMethod) {
                 if(preLine) {
