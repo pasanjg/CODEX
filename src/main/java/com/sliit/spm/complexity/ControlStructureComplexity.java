@@ -120,7 +120,7 @@ public class ControlStructureComplexity {
             detectSwitch(s);
             detectCaseStatement(s);
 
-            if(s.contains("}")){
+            if(s.contains("}") | currentLine.contains("{")){
                 isNestedControlStructure = false;
                 isControlStructure = false;
                 isSwitch = false;
