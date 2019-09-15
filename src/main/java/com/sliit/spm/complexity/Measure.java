@@ -61,6 +61,7 @@ public class Measure {
 	private int cp = 0;
 	private int ctc = 0;
 	private int lineNo = 1;
+	private int totalcs = 0;
 
 	// TODO: define complexity calculation objects
 	public Measure(String fileName) {
@@ -140,7 +141,7 @@ public class Measure {
 				controlStructureComplexity.measureCtc(currentLine);
 				// TODO: measure pasan's
 
-				int totalcs = sizeComplexity.calculateTotalSizeComplexity(currentLine,
+				this.totalcs = sizeComplexity.calculateTotalSizeComplexity(currentLine,
 						new File(System.getProperty("user.dir") + "/temp/" + fileName));
 				String[] keys = { "if", "for", "while", "else if", "} else if", "}else if", "do" };
 				cnc = countCncValue(currentLine, keys);
@@ -163,8 +164,8 @@ public class Measure {
 				jsonObject.put("ctc", controlStructureComplexity.getCtc());
 				jsonObject.put("code", currentLine);
 				// Final CR-CP value calculation
-				// cs = sizeComplexity.getComplexity()-totalCs; cs value calculation
-				cs = 1;
+				// cs = sizeComplexity.getComplexity(); cs value calculation
+				cs = sizeComplexity.getComplexity() - this.totalcs;
 				ctc = controlStructureComplexity.getCtc();
 				TW = ctc + cnc + ci;
 				cps = cs * TW;
