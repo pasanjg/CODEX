@@ -25,29 +25,5 @@ public class MeasureComplexity {
         return measure.getComplexity();
     }
 
-
-    @GetMapping("/controlStructure/{fileName}")
-    public String calculateCnC(@PathVariable String fileName) {
-
-        Measure measure = new Measure(fileName);
-        measure.mesaureCtC();
-        return measure.get();
-    }
-
-    @GetMapping("/size/{fileName}")
-    public String calculateSizeComplexity(@PathVariable String fileName) throws FileNotFoundException {
-
-        File file = new File(System.getProperty("user.dir") + "/temp/" + fileName);
-        SizeComplexity sizeComplexity = new SizeComplexity(file);
-
-        return sizeComplexity.calculateTotalSizeComplexity();
-    }
-
-    @GetMapping("/inheritance/{fileName}")
-    public String calculateInheritance(@PathVariable String fileName) {
-        Measure measure = new Measure(fileName);
-        return measure.getCodeInheritance();
-    }
-
 }
 
