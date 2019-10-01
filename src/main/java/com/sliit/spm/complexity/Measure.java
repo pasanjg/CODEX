@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -117,22 +116,11 @@ public class Measure {
                 if(isMultiLineComment){
                     lineNo++;
                     jsonObject.put("line",count++);
-                    jsonObject.put("ctc",0);
-                    jsonObject.put("cnc",0);
                     jsonObject.put("code",currentLine);
-                    jsonObject.put("TW", 0);
-                    jsonObject.put("cps", 0);
-                    jsonObject.put("cr", 0);
-                    jsonObject.put("cs",1);
-                    jsonObject.put("ci",0);
                     tempArray.put(jsonObject);
                     if(currentLine.contains("*/")) {
                         isMultiLineComment = false;
                     }
-//                        jsonObject.put("ctcTokens","multiline close");
-//                    }else{
-//                        jsonObject.put("ctcTokens","multiline");
-//                    }
                     continue;
                 }
 
@@ -150,12 +138,8 @@ public class Measure {
                     jsonObject.put("ci",0);
                     tempArray.put(jsonObject);
                     if(currentLine.contains("/*")){
-//                        jsonObject.put("ctcTokens","multilineStart");
                         isMultiLineComment = true;
                     }
-//                    else {
-//                        jsonObject.put("ctcTokens","comment");
-//                    }
                     continue;
                 }
                 controlStructureComplexity.measureCtc(currentLine);
@@ -165,7 +149,6 @@ public class Measure {
 
                 String comment = "comment";
                 if (currentLine.contains("//")) {
-                    System.out.println(currentLine.charAt(0));
                     comment = currentLine.substring(0, currentLine.indexOf("//"));
                 }
 
@@ -191,7 +174,6 @@ public class Measure {
                     if((startNo <= lineNo) && (endNo >= lineNo)) {
                         cr = cps * 2;
                         cp = cp + cr;
-                        System.out.println("in rec"+lineNo+" cps:"+cps+" cr:"+cr);
                         if(endNo == lineNo) {
                             if(!(arrIndex == arrCount-1)) {
                                 arrIndex++;
@@ -199,7 +181,6 @@ public class Measure {
                         }
                     } else {
                         cr = 0;
-                        //System.out.println("Out rec"+lineNo+" cps:"+cps+" cr:"+cr);
                     }
                 }
                 if(cr == 0) {
@@ -295,8 +276,9 @@ public class Measure {
         currentLine = currentLine.trim();
         String[] lineWords = currentLine.split(" ");
 
-        if(lineWords.length >= 3) {
+        if(lineWords.length >= 2) {
             String keyword = lineWords[1].trim();
+            String firstKey = lineWords[0].trim();
             if(currentLine != null || currentLine != "" ) {
                 if(!lineWords[0].equals("class") || !lineWords[1].equals("class")) {
                     if(keyword.equals("static") || keyword.equals("void") || keyword.equals("String") || keyword.equals("int") || keyword.equals("double") || keyword.equals("float") || keyword.equals("long")) {
@@ -324,11 +306,27 @@ public class Measure {
                             System.out.println(word);
                         }
                     }
+                    if(firstKey.equals("void") || firstKey.equals("String") || firstKey.equals("int") || firstKey.equals("double") || firstKey.equals("float") || firstKey.equals("long")) {
+						if(!currentLine.endsWith(";")) {
+							if(!keyword.startsWith("main(")){
+								inMethod = true;
+				        		preLine = true;
+				        		isFirst = true;
+				        		word = lineWords[1];
+			            		startLine = lineNo;
+			            		endLine = lineNo;
+			            		b_count++;
+			            		temp = b_count;
+			            		System.out.println(word);
+							}
+						}
+					}
                 }
             }
         }
         if(temp == 1) {
             temp++;
+	        preLine = false;
         } else {
             if(inMethod) {
                 if(preLine) {
