@@ -140,9 +140,9 @@ public class Measure {
                 if(Pattern.matches(regex_comment,currentLine)){
                     lineNo++;
                     jsonObject.put("line",count++);
+                    jsonObject.put("code",currentLine);
                     jsonObject.put("ctc",0);
                     jsonObject.put("cnc", 0);
-                    jsonObject.put("code",currentLine);
                     jsonObject.put("TW", 0);
                     jsonObject.put("cps", 0);
                     jsonObject.put("cr", 0);
@@ -175,12 +175,9 @@ public class Measure {
                     jsonObject.put("ci",ci);
                 }
 
+                
                 jsonObject.put("cnc",cnc);
-                jsonObject.put("ctcTokens",controlStructureComplexity.getTokens());
-
-                jsonObject.put("line",count);
                 jsonObject.put("ctc",controlStructureComplexity.getCtc());
-                jsonObject.put("code",currentLine);
                 //Final CR-CP value calculation
                 //cs = sizeComplexity.getComplexity()-totalCs;    cs value calculation
                 cs = 1;
@@ -213,6 +210,9 @@ public class Measure {
                 jsonObject.put("cps",cps);
                 jsonObject.put("cr", cr);
                 jsonObject.put("cs",1);
+                jsonObject.put("ctcTokens",controlStructureComplexity.getTokens());
+                jsonObject.put("code",currentLine);
+                jsonObject.put("line",count);
                 tempArray.put(jsonObject);
                 cr = 0;
                 count++;
