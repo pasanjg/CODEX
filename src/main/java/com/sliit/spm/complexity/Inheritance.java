@@ -67,15 +67,15 @@ public class Inheritance {
 
             if (line != null) {
                 if (classLine) {
-                    ci = 2;
+                    ci = 1;
                 }
 
                 if (containsIgnoreCase(line, " extends ")) {
-                    ci = 3;
+                    ci = 2;
                 }
 
                 if (containsIgnoreCase(line, " implements ")) {
-                    int ciCount = 3;
+                    int ciCount = 2;
 
                     for (int i = 0; i < line.length(); i++) {
                         if (line.charAt(i) == ',') {
@@ -128,7 +128,7 @@ public class Inheritance {
             if (line != null && line.matches(".*[a-zA-Z].*") && comment.matches(".*[a-zA-Z].*")) {
 
                 if (containsIgnoreCase(line, "class ")) {
-                    int ciCount = 2;
+                    int ciCount = 1;
 
                     if(line.contains(":")) {
                         for (int i = 0; i < line.length(); i++) {
